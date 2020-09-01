@@ -1,14 +1,9 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+      ./hardware-configuration.nix # Include the results of the hardware scan.
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -20,7 +15,9 @@
   hardware = {
     enableRedistributableFirmware = true;
     cpu.intel.updateMicrocode = true;
+    pulseaudio.enable = true;
   };
+  sound.enable = true;
 
   networking.hostName = "AxelsDator";
   networking.networkmanager.enable = true;
@@ -48,23 +45,16 @@
     bash vim tmux curl git ripgrep firefox alacritty spotify
   ];
 
-  programs.light.enable = true;
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
-    pinentryFlavor = "gnome3";
   };
+
+  programs.light.enable = true;
 
   # List services that you want to enable:
   # services.openssh.enable = true; # Enable the OpenSSH daemon.
   services.printing.enable = true; # Enable CUPS to print documents.
-
-  # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -78,7 +68,7 @@
     libinput = {
       enable = true;
       naturalScrolling = true;
-      tappingDragLock = false;
+      tappingDragLock = false; # Quit dragging immediately after release
       # Hack to make options only apply to touchpad
       additionalOptions = ''MatchIsTouchpad "on"'';
     };
@@ -91,11 +81,15 @@
   # services.xserver.desktopManager.plasma5.enable = true;
   services.xserver.windowManager.openbox.enable = true;
 
+  # Enable the picom compositor.
   services.picom = {
     enable = true;
     backend = "glx";
     shadow = true;
-    shadowExclude = ["window_type != 'menu'"];
+    shadowExclude = ["window_type != 'normal'"];
+    settings = {
+      shadow-ignore-shaped = true;
+    };
   };
 
   location.provider = "geoclue2";
@@ -109,6 +103,11 @@
     extraGroups = [ "wheel" "networkmanager" "video" "docker" "wireshark" ];
     hashedPassword = "$6$SdpjwG9cIGv$yBZ2HQ7gTNkEg54UW2uM7nIZ5ARv0GNNw/IVDLszolz8pz/fVfNJaW2ktIBMcB30HGOkGKn4koMfKocTjMHNE.";
   };
+
+  nix.package = pkgs.nixFlakes;
+  nix.extraOptions = ''
+    experimental-features = nix-command flakes
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
