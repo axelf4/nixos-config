@@ -7,7 +7,10 @@
       modules = [
         nixpkgs.nixosModules.notDetected
         ./configuration.nix
-        { system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev; }
+        {
+          system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
+          nix.registry.nixpkgs.flake = nixpkgs; # Pin nixpkgs flake
+        }
       ];
     };
   };
