@@ -3,7 +3,7 @@ D := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 all: $(D)hardware-configuration.nix
 
 $(D)hardware-configuration.nix:
-	nixos-generate-config --dir $(D)
+	nixos-generate-config --show-hardware-config >$@
 
 RULES := switch boot test build dry-build dry-activate build-vm build-vm-with-bootloader
 
