@@ -44,6 +44,7 @@
   environment.systemPackages = with pkgs; [
     bash vim tmux curl git ripgrep firefox alacritty spotify
   ];
+  environment.variables = { EDITOR = "vim"; VISUAL = "vim"; };
 
   programs.gnupg.agent = {
     enable = true;
