@@ -87,9 +87,12 @@
     enable = true;
     backend = "glx";
     shadow = true;
-    shadowExclude = ["window_type != 'normal'"];
+    shadowExclude = [
+      "window_type != 'normal'"
+      "bounding_shaped && !rounded_corners"
+    ];
     settings = {
-      shadow-ignore-shaped = true;
+      detect-rounded-corners = true;
     };
   };
 
