@@ -61,7 +61,7 @@
   services.xserver = {
     enable = true;
     layout = "se";
-    xkbOptions = "caps:escape";
+    xkbOptions = "caps:escape,shift:both_capslock";
     autoRepeatDelay = 400;
     autoRepeatInterval = 50;
   
