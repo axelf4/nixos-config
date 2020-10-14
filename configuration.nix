@@ -2,7 +2,7 @@
 
 {
   imports = [
-      ./hardware-configuration.nix # Include the results of the hardware scan.
+    ./hardware-configuration.nix # Include the results of the hardware scan.
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -16,18 +16,12 @@
     enableRedistributableFirmware = true;
     cpu.intel.updateMicrocode = true;
     pulseaudio.enable = true;
+    bluetooth.enable = true;
   };
   sound.enable = true;
 
   networking.hostName = "AxelsDator";
   networking.networkmanager.enable = true;
-
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
-  networking.useDHCP = false;
-  networking.interfaces.enp0s25.useDHCP = true;
-  networking.interfaces.wlp3s0.useDHCP = true;
 
   # Hibernate on low battery level
   services.udev.extraRules = ''
@@ -54,19 +48,18 @@
     enableSSHSupport = true;
   };
 
-  programs.light.enable = true;
-
   # List services that you want to enable:
   # services.openssh.enable = true; # Enable the OpenSSH daemon.
   services.printing.enable = true; # Enable CUPS to print documents.
+  services.tlp.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver = {
     enable = true;
     layout = "se";
     xkbOptions = "caps:escape,shift:both_capslock";
-    autoRepeatDelay = 400;
-    autoRepeatInterval = 50;
+    autoRepeatDelay = 200;
+    autoRepeatInterval = 100;
   
     # Enable touchpad support.
     libinput = {
@@ -77,26 +70,8 @@
       additionalOptions = ''MatchIsTouchpad "on"'';
     };
 
-    videoDrivers = [ "intel" ];
-  };
-
-  # Enable the KDE Desktop Environment.
-  # services.xserver.displayManager.sddm.enable = true;
-  # services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.windowManager.openbox.enable = true;
-
-  # Enable the picom compositor.
-  services.picom = {
-    enable = true;
-    backend = "glx";
-    shadow = true;
-    shadowExclude = [
-      "window_type != 'normal'"
-      "bounding_shaped && !rounded_corners"
-    ];
-    settings = {
-      detect-rounded-corners = true;
-    };
+    # Enable the KDE Desktop Environment.
+    desktopManager.plasma5.enable = true;
   };
 
   location.provider = "geoclue2";
