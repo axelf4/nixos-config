@@ -37,6 +37,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     bash vim tmux curl git ripgrep firefox alacritty spotify
+	(callPackage ./packages/spotify-mix-playlists {})
   ];
   environment.variables = {
     EDITOR = "vim"; VISUAL = "vim";
