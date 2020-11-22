@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./modules/kdeconnect.nix
     ./hardware-configuration.nix # Include the results of the hardware scan.
   ];
 
