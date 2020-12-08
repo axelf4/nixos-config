@@ -37,11 +37,12 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    bash vim tmux curl git ripgrep firefox alacritty spotify
-	(callPackage ./packages/spotify-mix-playlists {})
+    emacs-nox tmux curl git ripgrep firefox alacritty spotify
+    xclip # System clipboard support in terminal Emacs
+    (callPackage ./packages/spotify-mix-playlists {})
   ];
   environment.variables = {
-    EDITOR = "vim"; VISUAL = "vim";
+    EDITOR = "emacs"; VISUAL = "$EDITOR";
     MOZ_USE_XINPUT2 = "1";
   };
 
