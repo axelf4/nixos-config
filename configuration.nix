@@ -23,6 +23,8 @@
 
   networking.hostName = "AxelsDator";
   networking.networkmanager.enable = true;
+  # Make strongSwan aware of NetworkManager config (see NixOS/nixpkgs#64965)
+  environment.etc."ipsec.secrets".text = ''include ipsec.d/ipsec.nm-l2tp.secrets'';
 
   # Hibernate on low battery level
   services.udev.extraRules = ''
