@@ -2,45 +2,34 @@
 
 {
   imports = [
+    ./modules/graphical.nix
     ./modules/kdeconnect.nix
-    ./hardware-configuration.nix # Include the results of the hardware scan.
   ];
-
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.extraModprobeConfig = ''
-    options snd slots=snd-hda-intel
-  '';
 
   hardware = {
     enableRedistributableFirmware = true;
-    cpu.intel.updateMicrocode = true;
     pulseaudio.enable = true;
     bluetooth.enable = true;
   };
   sound.enable = true;
-
-  networking.hostName = "AxelsDator";
+  location.provider = "geoclue2";
   networking.networkmanager.enable = true;
   # Make strongSwan aware of NetworkManager config (see NixOS/nixpkgs#64965)
   environment.etc."ipsec.secrets".text = ''include ipsec.d/ipsec.nm-l2tp.secrets'';
 
-  # Hibernate on low battery level
-  services.udev.extraRules = ''
-    SUBSYSTEM=="power_supply", ATTR{status}=="Discharging", ATTR{capacity}=="[0-5]", RUN+="${pkgs.systemd}/bin/systemctl hibernate"
-  '';
-
-  # Select internationalisation properties.
+  # Select internationalisation properties
   console.useXkbConfig = true;
+  services.xserver = {
+    layout = "se";
+    xkbOptions = "caps:escape,shift:both_capslock";
+  };
   time.timeZone = "Europe/Stockholm";
 
   nixpkgs.config.allowUnfree = true;
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    emacs-nox tmux curl git ripgrep firefox alacritty spotify
-    xclip # System clipboard support in terminal Emacs
+    emacs-nox tmux curl git ripgrep
+
     (callPackage ./packages/spotify-mix-playlists {})
   ];
   environment.variables = {
@@ -53,37 +42,11 @@
     enableSSHSupport = true;
   };
 
-  # List services that you want to enable:
-  # services.openssh.enable = true; # Enable the OpenSSH daemon.
-  services.printing.enable = true; # Enable CUPS to print documents.
-  services.tlp.enable = true;
-
-  # Enable the X11 windowing system.
-  services.xserver = {
-    enable = true;
-    layout = "se";
-    xkbOptions = "caps:escape,shift:both_capslock";
-    autoRepeatDelay = 200;
-    autoRepeatInterval = 100;
-  
-    # Enable touchpad support.
-    libinput = {
-      enable = true;
-      naturalScrolling = true;
-      tappingDragLock = false; # Quit dragging immediately after release
-      # Hack to make options only apply to touchpad
-      additionalOptions = ''MatchIsTouchpad "on"'';
-    };
-
-    # Enable the KDE Desktop Environment.
-    desktopManager.plasma5.enable = true;
-  };
-
-  location.provider = "geoclue2";
-  services.redshift.enable = true;
+  services.openssh.enable = true; # Enable the OpenSSH daemon
+  services.printing.enable = true; # Enable CUPS to print documents
 
   users.mutableUsers = false;
-  # Define a user account.
+  # Define a user account
   users.users.axel = {
     isNormalUser = true;
     description = "Axel Forsman";
@@ -95,13 +58,4 @@
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "20.03"; # Did you read the comment?
 }
-
