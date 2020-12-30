@@ -22,6 +22,7 @@
       };
     in builtins.listToAttrs [
       (mkHost "x86_64-linux" "axel-t450")
+      (mkHost "x86_64-linux" "axel-g751jy")
       (mkHost "aarch64-linux" "axel-pi4")
     ];
   };
