@@ -41,8 +41,18 @@
     enable = true;
     enableSSHSupport = true;
   };
-
+  programs.ssh.knownHosts = {
+    "github.com" = {
+      hostNames = [ "github.com" ];
+      publicKeyFile = ./pubkeys/github_ssh_host_rsa_key.pub;
+    };
+    chalmers = {
+      hostNames = [ "remote11.chalmers.se" "remote12.chalmers.se" ];
+      publicKeyFile = ./pubkeys/chalmers_ssh_host_ed25519_key.pub;
+    };
+  };
   services.openssh.enable = true; # Enable the OpenSSH daemon
+
   services.printing.enable = true; # Enable CUPS to print documents
 
   users.mutableUsers = false;
