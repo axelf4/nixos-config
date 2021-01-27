@@ -18,6 +18,10 @@
   environment.etc."ipsec.secrets".text = ''include ipsec.d/ipsec.nm-l2tp.secrets'';
 
   # Select internationalisation properties
+  i18n = {
+    defaultLocale = "sv_SE.UTF-8";
+    extraLocaleSettings = { LC_MESSAGES = "en_US.UTF-8"; };
+  };
   console.useXkbConfig = true;
   services.xserver = {
     layout = "se";
