@@ -37,7 +37,6 @@
     (callPackage ./packages/spotify-mix-playlists {})
   ];
   environment.variables = {
-    EDITOR = "emacs"; VISUAL = "$EDITOR";
     MOZ_USE_XINPUT2 = "1";
   };
 
