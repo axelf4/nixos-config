@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, unzip, makeWrapper, jre }:
+{ stdenv, fetchurl, unzip, makeDesktopItem, makeWrapper, jre }:
 
 stdenv.mkDerivation rec {
   pname = "conan";
@@ -13,11 +13,25 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ unzip makeWrapper ];
 
   installPhase = ''
-    mkdir -p $out/{bin,lib}
+    mkdir -pv $out/{bin,lib,share/applications}
     install -m644 Conan.jar $out/lib
     makeWrapper ${jre}/bin/java $out/bin/${pname} \
       --add-flags "-jar $out/lib/Conan.jar"
+    cp -av $desktopItem/share/applications/* $out/share/applications/
   '';
+
+  desktopItem = makeDesktopItem {
+    name = pname;
+    exec = pname;
+    icon = fetchurl {
+      url = "https://raw.githubusercontent.com/nonilole/Conan/master/src/icon.png";
+      sha256 = "c340cd0554f917a1d1c16d1cdfe151bad4d294b31601f2a6a91d44ba4aa8000e";
+    };
+    desktopName = "Conan";
+    genericName = "Proof Editor";
+    comment = meta.description;
+    categories = "Education";
+  };
 
   meta = with stdenv.lib; {
     description = "A proof editor for first order logic";
