@@ -37,6 +37,7 @@
     zip unzip
 
     (callPackage ./packages/spotify-mix-playlists {})
+    (callPackage ./packages/open-csb-door {})
   ];
   environment.variables = {
     MOZ_USE_XINPUT2 = "1";
