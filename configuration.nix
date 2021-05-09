@@ -3,6 +3,7 @@
 {
   imports = [
     ./modules/graphical.nix
+    ./modules/development.nix
     ./modules/kdeconnect.nix
   ];
 
@@ -33,6 +34,7 @@
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     emacs-nox tmux curl git ripgrep
+    zip unzip
 
     (callPackage ./packages/spotify-mix-playlists {})
   ];

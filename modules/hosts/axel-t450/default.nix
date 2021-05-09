@@ -16,6 +16,7 @@
   hardware.cpu.intel.updateMicrocode = true;
 
   graphical.enable = true;
+  development.enable = true;
 
   services.tlp.enable = true;
 

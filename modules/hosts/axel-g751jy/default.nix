@@ -15,6 +15,7 @@
   services.tlp.enable = true;
 
   graphical.enable = true;
+  development.enable = true;
 
   # Wine and Steam
   hardware.opengl.driSupport32Bit = true;

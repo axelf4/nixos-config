@@ -41,6 +41,7 @@ in
       xclip # System clipboard support in terminal Emacs
 
       firefox alacritty spotify
+      gimp inkscape
 
       jetbrains.idea-community
     ];
