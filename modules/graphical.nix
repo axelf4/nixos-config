@@ -39,11 +39,16 @@ in
 
     environment.systemPackages = with pkgs; [
       xclip # System clipboard support in terminal Emacs
+      (callPackage ../packages/edit-selection {})
 
       firefox alacritty spotify
       gimp inkscape
 
       jetbrains.idea-community
     ];
+    environment.variables = {
+      TERMINAL = "alacritty";
+      MOZ_USE_XINPUT2 = "1";
+    };
   };
 }

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Edits the current X selection in the default editor.
+#
+# (Bind globally to e.g. Super+v.)
+
+id=$(xdotool getactivewindow)
+app_name=$(xprop -id "$id" WM_CLASS \
+			   | grep --only-matching --extended-regexp '"[^"]+"$')
+tmp=$(mktemp --tmpdir edit-selection.XXXXXX) \
+	|| { >&2 echo "Failed to create tmp file!"; exit 1; }
+
+xclip -selection primary -out > "$tmp"
+"$TERMINAL" -e "$SHELL" -ci "\$VISUAL '$tmp'"
+# Firefox pastes X clipboard upon Shift+Insert (Bug 1070518)
+xclip -selection $([ "$id" ] && [ "$app_name" != '"Firefox"' ] \
+					   && printf %s primary || printf %s clipboard) \
+	  -in "$tmp"
+
+# XXX: Cannot use --clearmodifiers due to jordansissel/xdotool#43
+xdotool windowactivate --sync "$id" \
+		keyup Shift_R key Shift+Insert
