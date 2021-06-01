@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-20.09";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.05";
     flake-utils.url = "github:numtide/flake-utils";
   };
 

@@ -16,7 +16,7 @@
   location.provider = "geoclue2";
   networking.networkmanager.enable = true;
   # Make strongSwan aware of NetworkManager config (see NixOS/nixpkgs#64965)
-  environment.etc."ipsec.secrets".text = ''include ipsec.d/ipsec.nm-l2tp.secrets'';
+  environment.etc."ipsec.secrets".text = "include ipsec.d/ipsec.nm-l2tp.secrets";
 
   # Select internationalisation properties
   i18n = {

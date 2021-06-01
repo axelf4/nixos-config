@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, unzip, makeDesktopItem, makeWrapper, jre }:
+{ lib, stdenv, fetchurl, unzip, makeDesktopItem, makeWrapper, jre }:
 
 stdenv.mkDerivation rec {
   pname = "conan";
@@ -33,7 +33,7 @@ stdenv.mkDerivation rec {
     categories = "Education";
   };
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "A proof editor for first order logic";
     homepage = "https://github.com/nonilole/Conan";
     license = licenses.mit;

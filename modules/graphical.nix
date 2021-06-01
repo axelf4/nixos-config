@@ -22,13 +22,13 @@ in
       autoRepeatDelay = 200;
       autoRepeatInterval = 100;
       
-      # Enable touchpad support.
+      # Enable touchpad support
       libinput = {
         enable = true;
-        naturalScrolling = true;
-        tappingDragLock = false; # Quit dragging immediately after release
-        # Hack to make options only apply to touchpad (see NixOS/nixpkgs#75007)
-        additionalOptions = ''MatchIsTouchpad "on"'';
+        touchpad = {
+          naturalScrolling = true;
+          tappingDragLock = false; # Quit dragging immediately after release
+        };
       };
 
       # Enable the KDE Desktop Environment
