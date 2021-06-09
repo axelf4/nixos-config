@@ -44,6 +44,12 @@
     enable = true;
     enableSSHSupport = true;
   };
+  # Unlock GnuPG keys on login
+  # (The login PAM config gets included by display manager files.)
+  security.pam.services.login.gnupg = {
+    enable = true;
+    storeOnly = true;
+  };
   programs.ssh.knownHosts = {
     "github.com" = {
       hostNames = [ "github.com" ];

@@ -35,8 +35,6 @@ in
       desktopManager.plasma5.enable = true;
     };
 
-    security.pam.services.lightdm.enableKwallet = true;
-
     environment.systemPackages = with pkgs; [
       xclip # System clipboard support in terminal Emacs
       (callPackage ../packages/edit-selection {})
