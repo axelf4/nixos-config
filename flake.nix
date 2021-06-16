@@ -33,6 +33,8 @@
     let pkgs = nixpkgs.legacyPackages.${system};
     in {
       packages = {
+        iosevka-custom = pkgs.callPackage ./packages/iosevka-custom.nix {};
+
         # Needs JavaFX which is not packaged by openjdk8
         conan = pkgs.callPackage ./packages/conan { jre = pkgs.jdk11; };
       };

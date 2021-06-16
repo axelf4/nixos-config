@@ -48,5 +48,10 @@ in
       TERMINAL = "alacritty";
       MOZ_USE_XINPUT2 = "1";
     };
+
+    fonts = {
+      fonts = [ pkgs.iosevka-custom ];
+      fontconfig.defaultFonts.monospace = [ "Iosevka" ];
+    };
   };
 }
