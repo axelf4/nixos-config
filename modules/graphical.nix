@@ -1,6 +1,19 @@
 {config, pkgs, lib, ...}:
 let
   cfg = config.graphical;
+
+  editorDesktopItem = pkgs.makeDesktopItem {
+    name = "editor";
+    desktopName = "Editor";
+    comment = "Edit text";
+    # Lookup $VISUAL in the user's preferred shell
+    exec = ''/bin/sh -c "exec \\\\"\\\\\$SHELL\\\\" -lc 'exec \\\\\$VISUAL \\\\"\\\\\$@\\\\"' \\\\"\\\\\$SHELL\\\\" \\\\"\\\\\$@\\\\"" /bin/sh %F'';
+    terminal = true;
+    mimeType = "text/plain;";
+    icon = "emacs";
+    extraDesktopEntries."NoDisplay" = "true"; # Added as proper field in 21.09
+    fileValidation = false; # desktop-file-utils validated \\" wrongly until v0.25
+  };
 in
 {
   options = {
@@ -37,6 +50,7 @@ in
 
     environment.systemPackages = with pkgs; [
       xclip # System clipboard support in terminal Emacs
+      editorDesktopItem
       (callPackage ../packages/edit-selection {})
 
       firefox alacritty spotify
@@ -47,7 +61,13 @@ in
     environment.variables = {
       TERMINAL = "alacritty";
       MOZ_USE_XINPUT2 = "1";
+      XDG_CONFIG_DIRS = [ "/etc/xdg" ];
     };
+    environment.etc."xdg/mimeapps.list".text = ''
+      [Default Applications]
+      # All text/* MIME types are subclasses of text/plain
+      text/plain=editor.desktop;
+    '';
 
     fonts = {
       fonts = [ pkgs.iosevka-custom ];
