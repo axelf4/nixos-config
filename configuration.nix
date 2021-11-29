@@ -55,6 +55,10 @@
       hostNames = [ "github.com" ];
       publicKeyFile = ./pubkeys/github_ssh_host_rsa_key.pub;
     };
+    "gitlab.com" = {
+      hostNames = [ "gitlab.com" ];
+      publicKeyFile = ./pubkeys/gitlab_ssh_host_ed25519_key.pub;
+    };
     chalmers = {
       hostNames = [ "remote11.chalmers.se" "remote12.chalmers.se" ];
       publicKeyFile = ./pubkeys/chalmers_ssh_host_ed25519_key.pub;
