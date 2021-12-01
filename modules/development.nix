@@ -17,10 +17,17 @@ in
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      rustfmt
+      gdb rr
+      rustfmt rust-analyzer
+      nodePackages.prettier nodePackages.typescript-language-server
       black
       nodePackages.purty # PureScript formatter
       shellcheck
     ];
+
+    virtualisation.podman = {
+      enable = true;
+      dockerCompat = true;
+    };
   };
 }

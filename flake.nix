@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -34,9 +34,7 @@
     in {
       packages = {
         iosevka-custom = pkgs.callPackage ./packages/iosevka-custom.nix {};
-
-        # Needs JavaFX which is not packaged by openjdk8
-        conan = pkgs.callPackage ./packages/conan { jre = pkgs.jdk11; };
+        conan = pkgs.callPackage ./packages/conan.nix {};
       };
     }
   );

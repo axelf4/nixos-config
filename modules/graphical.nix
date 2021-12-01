@@ -11,7 +11,7 @@ let
     terminal = true;
     mimeType = "text/plain;";
     icon = "emacs";
-    extraDesktopEntries."NoDisplay" = "true"; # Added as proper field in 21.09
+    noDisplay = true;
     fileValidation = false; # desktop-file-utils validated \\" wrongly until v0.25
   };
 in
@@ -32,8 +32,8 @@ in
     # Enable the X11 windowing system
     services.xserver = {
       enable = true;
-      autoRepeatDelay = 200;
-      autoRepeatInterval = 100;
+      autoRepeatDelay = 250;
+      autoRepeatInterval = 250;
       
       # Enable touchpad support
       libinput = {
@@ -52,6 +52,7 @@ in
       xclip # System clipboard support in terminal Emacs
       editorDesktopItem
       (callPackage ../packages/edit-selection {})
+      ark
 
       firefox alacritty spotify
       gimp inkscape
@@ -61,13 +62,12 @@ in
     environment.variables = {
       TERMINAL = "alacritty";
       MOZ_USE_XINPUT2 = "1";
-      XDG_CONFIG_DIRS = [ "/etc/xdg" ];
     };
-    environment.etc."xdg/mimeapps.list".text = ''
-      [Default Applications]
+
+    xdg.mime.defaultApplications = {
       # All text/* MIME types are subclasses of text/plain
-      text/plain=editor.desktop;
-    '';
+      "text/plain" = "editor.desktop";
+    };
 
     fonts = {
       fonts = [ pkgs.iosevka-custom ];

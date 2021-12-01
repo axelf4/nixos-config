@@ -18,13 +18,10 @@
   development.enable = true;
 
   # Wine and Steam
-  hardware.opengl.driSupport32Bit = true;
-  hardware.opengl.extraPackages32 = with pkgs.pkgsi686Linux; [ libva ];
-  hardware.pulseaudio.support32Bit = true;
   environment.systemPackages = with pkgs; [
     wineWowPackages.stable
-    steam
   ];
+  programs.steam.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
