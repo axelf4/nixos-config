@@ -30,6 +30,14 @@
   };
   time.timeZone = "Europe/Stockholm";
 
+  # Use block cursor in the Linux VT. The VGA standard offers no way
+  # to alter the cursor blink rate, so make it invisible and emulate
+  # in software.
+  boot.kernelParams = [ "vt.cur_default=0x000071" ];
+  # Disable blinking entirely in the the Linux Framebuffer Console,
+  # since e.g. text editors override the default set above.
+  systemd.tmpfiles.rules = [ "w /sys/class/graphics/fbcon/cursor_blink - - - - 0" ];
+
   nixpkgs.config.allowUnfree = true;
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
