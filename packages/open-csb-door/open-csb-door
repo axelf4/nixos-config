@@ -42,7 +42,8 @@ get_aptus_url() {
 
 # Authenticate to Aptus and request to open door
 aptus_url=$(get_aptus_url) || exit $?
-curl --fail --fail-early --output /dev/null --no-progress-meter \
+
+curl --fail --fail-early --output /dev/null --no-progress-meter --location \
 	 --cookie "$cookies" --cookie-jar "$cookies" \
 	 "$aptus_url" \
 	 "https://apt-www.chalmersstudentbostader.se/AptusPortal/Lock/UnlockEntryDoor/$door_id" \
