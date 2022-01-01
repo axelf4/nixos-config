@@ -1,18 +1,9 @@
-{config, pkgs, lib, ...}:
+{ config, pkgs, lib, ... }:
 let
   cfg = config.development;
-in
-{
-  options = {
-    development = {
-      enable = lib.mkOption {
-        default = false;
-        type = lib.types.bool;
-        description = ''
-          Whether to enable an environment with some development tools.
-        '';
-      };
-    };
+in {
+  options.development = {
+    enable = lib.mkEnableOption "a development environment";
   };
 
   config = lib.mkIf cfg.enable {

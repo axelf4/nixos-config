@@ -4,7 +4,6 @@
   imports = [
     ./modules/graphical.nix
     ./modules/development.nix
-    ./modules/kdeconnect.nix
   ];
 
   hardware = {

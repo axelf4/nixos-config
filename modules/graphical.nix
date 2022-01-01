@@ -1,4 +1,4 @@
-{config, pkgs, lib, ...}:
+{ config, pkgs, lib, ... }:
 let
   cfg = config.graphical;
 
@@ -14,18 +14,9 @@ let
     noDisplay = true;
     fileValidation = false; # desktop-file-utils validated \\" wrongly until v0.25
   };
-in
-{
-  options = {
-    graphical = {
-      enable = lib.mkOption {
-        default = false;
-        type = lib.types.bool;
-        description = ''
-          Whether to enable a graphical environment.
-        '';
-      };
-    };
+in {
+  options.graphical = {
+    enable = lib.mkEnableOption "a graphical environment";
   };
 
   config = lib.mkIf cfg.enable {
@@ -48,6 +39,7 @@ in
       desktopManager.plasma5.enable = true;
     };
 
+    programs.kdeconnect.enable = true;
     environment.systemPackages = with pkgs; [
       xclip # System clipboard support in terminal Emacs
       editorDesktopItem
