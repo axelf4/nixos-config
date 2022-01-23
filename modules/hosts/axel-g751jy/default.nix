@@ -9,6 +9,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.kernelParams = [
+    "acpi_osi=" # Fix brightness keys
+  ];
+
   hardware.cpu.intel.updateMicrocode = true;
   services.xserver.videoDrivers = [ "nvidia" ];
 
