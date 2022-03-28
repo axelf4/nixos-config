@@ -30,13 +30,13 @@
       (mkHost "x86_64-linux" "axel-g751jy")
       (mkHost "aarch64-linux" "axel-pi4")
     ];
-  } // flake-utils.lib.eachDefaultSystem (system:
-    let pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      packages = {
-        iosevka-custom = pkgs.callPackage ./packages/iosevka-custom.nix {};
-        conan = pkgs.callPackage ./packages/conan.nix {};
-      };
-    }
-  );
+  } // flake-utils.lib.eachDefaultSystem (system: let
+    pkgs = nixpkgs.legacyPackages.${system};
+  in {
+    packages = {
+      iosevka-custom = pkgs.callPackage ./packages/iosevka-custom.nix {};
+      gfm-preview = pkgs.callPackage ./packages/gfm-preview {};
+      conan = pkgs.callPackage ./packages/conan.nix {};
+    };
+  });
 }

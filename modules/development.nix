@@ -14,6 +14,7 @@ in {
       black
       nodePackages.purty # PureScript formatter
       shellcheck
+      gfm-preview
     ];
 
     virtualisation.podman = {
