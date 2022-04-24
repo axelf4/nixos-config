@@ -24,8 +24,13 @@
   };
   console.useXkbConfig = true;
   services.xserver = {
-    layout = "se";
-    xkbOptions = "caps:escape,shift:both_capslock";
+    layout = "se-custom";
+    xkbOptions = "caps:escape,shift:both_capslock,grp:ctrls_toggle";
+    extraLayouts.se-custom = {
+      description = "SE layout with customizations";
+      languages = [ "swe" "eng" ];
+      symbolsFile = ./xkb/symbols/se-custom;
+    };
   };
   time.timeZone = "Europe/Stockholm";
 

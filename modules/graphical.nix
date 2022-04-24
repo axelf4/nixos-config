@@ -23,8 +23,8 @@ in {
     # Enable the X11 windowing system
     services.xserver = {
       enable = true;
-      autoRepeatDelay = 250;
-      autoRepeatInterval = 250;
+      autoRepeatDelay = 300;
+      autoRepeatInterval = 300;
       
       # Enable touchpad support
       libinput = {

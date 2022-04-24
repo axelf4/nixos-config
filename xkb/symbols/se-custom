@@ -1,0 +1,14 @@
+default partial
+xkb_symbols "se-custom" {
+	include "se"
+
+	// Swap $ Dollar sign and ¤ Currency sign
+	key <AE04> { [4, dollar, currency, onequarter] };
+
+	// Second group with symbols in place of Swedish letters
+	Name[Group2]="Swedish (Programmer)";
+	key <AD11> { [], [ bracketleft, braceleft ] };
+	key <AD12> { [], [ bracketright, braceright ] };
+	key <AC10> { [], [ backslash, asciicircum, asciitilde ] };
+	key <AE12>  { [], [ acute, grave, plusminus, notsign ] };
+};
