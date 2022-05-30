@@ -9,10 +9,9 @@ let
     # Lookup $VISUAL in the user's preferred shell
     exec = ''/bin/sh -c "exec \\\\"\\\\\$SHELL\\\\" -lc 'exec \\\\\$VISUAL \\\\"\\\\\$@\\\\"' \\\\"\\\\\$SHELL\\\\" \\\\"\\\\\$@\\\\"" /bin/sh %F'';
     terminal = true;
-    mimeType = "text/plain;";
+    mimeTypes = [ "text/plain" ];
     icon = "emacs";
     noDisplay = true;
-    fileValidation = false; # desktop-file-utils validated \\" wrongly until v0.25
   };
 in {
   options.graphical = {
@@ -48,8 +47,6 @@ in {
 
       firefox alacritty spotify
       gimp inkscape
-
-      jetbrains.idea-community
     ];
     environment.variables = {
       TERMINAL = "alacritty";

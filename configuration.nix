@@ -45,7 +45,8 @@
   nixpkgs.config.allowUnfree = true;
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    emacs-nox tmux curl git ripgrep
+    (emacs28-nox.override { nativeComp = true; })
+    tmux curl git ripgrep
     zip unzip
 
     (callPackage ./packages/spotify-mix-playlists {})
@@ -63,14 +64,8 @@
     storeOnly = true;
   };
   programs.ssh.knownHosts = {
-    "github.com" = {
-      hostNames = [ "github.com" ];
-      publicKeyFile = ./pubkeys/github_ssh_host_rsa_key.pub;
-    };
-    "gitlab.com" = {
-      hostNames = [ "gitlab.com" ];
-      publicKeyFile = ./pubkeys/gitlab_ssh_host_ed25519_key.pub;
-    };
+    "github.com".publicKeyFile = ./pubkeys/github_ssh_host_rsa_key.pub;
+    "gitlab.com".publicKeyFile = ./pubkeys/gitlab_ssh_host_ed25519_key.pub;
     chalmers = {
       hostNames = [ "remote11.chalmers.se" "remote12.chalmers.se" ];
       publicKeyFile = ./pubkeys/chalmers_ssh_host_ed25519_key.pub;
@@ -89,7 +84,6 @@
     hashedPassword = "$6$SdpjwG9cIGv$yBZ2HQ7gTNkEg54UW2uM7nIZ5ARv0GNNw/IVDLszolz8pz/fVfNJaW2ktIBMcB30HGOkGKn4koMfKocTjMHNE.";
   };
 
-  nix.package = pkgs.nix_2_4;
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
