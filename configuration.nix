@@ -84,6 +84,15 @@
     hashedPassword = "$6$SdpjwG9cIGv$yBZ2HQ7gTNkEg54UW2uM7nIZ5ARv0GNNw/IVDLszolz8pz/fVfNJaW2ktIBMcB30HGOkGKn4koMfKocTjMHNE.";
   };
 
+  nix.settings = {
+    # Binary cache for Haskell.nix
+    substituters = [
+      "https://cache.iog.io"
+    ];
+    trusted-public-keys = [
+      "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
+    ];
+  };
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';
