@@ -2,8 +2,9 @@
 
 {
   imports = [
-    ./modules/graphical.nix
-    ./modules/development.nix
+    modules/spotify-inhibit-sleepd
+    modules/graphical.nix
+    modules/development.nix
   ];
 
   hardware = {
@@ -29,7 +30,7 @@
     extraLayouts.se-custom = {
       description = "SE layout with customizations";
       languages = [ "swe" "eng" ];
-      symbolsFile = ./xkb/symbols/se-custom;
+      symbolsFile = xkb/symbols/se-custom;
     };
   };
   time.timeZone = "Europe/Stockholm";
@@ -49,8 +50,8 @@
     tmux curl git ripgrep
     zip unzip
 
-    (callPackage ./packages/spotify-mix-playlists {})
-    (callPackage ./packages/open-csb-door {})
+    (callPackage packages/spotify-mix-playlists {})
+    (callPackage packages/open-csb-door {})
   ];
 
   programs.gnupg.agent = {
@@ -64,11 +65,11 @@
     storeOnly = true;
   };
   programs.ssh.knownHosts = {
-    "github.com".publicKeyFile = ./pubkeys/github_ssh_host_rsa_key.pub;
-    "gitlab.com".publicKeyFile = ./pubkeys/gitlab_ssh_host_ed25519_key.pub;
+    "github.com".publicKeyFile = pubkeys/github_ssh_host_rsa_key.pub;
+    "gitlab.com".publicKeyFile = pubkeys/gitlab_ssh_host_ed25519_key.pub;
     chalmers = {
       hostNames = [ "remote11.chalmers.se" "remote12.chalmers.se" ];
-      publicKeyFile = ./pubkeys/chalmers_ssh_host_ed25519_key.pub;
+      publicKeyFile = pubkeys/chalmers_ssh_host_ed25519_key.pub;
     };
   };
   services.openssh.enable = true; # Enable the OpenSSH daemon

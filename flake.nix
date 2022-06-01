@@ -21,7 +21,7 @@
             }
             nixpkgs.nixosModules.notDetected
             ./configuration.nix
-            (./modules/hosts + "/${name}")
+            (modules/hosts + "/${name}")
           ];
         };
       };
@@ -30,13 +30,17 @@
       (mkHost "x86_64-linux" "axel-g751jy")
       (mkHost "aarch64-linux" "axel-pi4")
     ];
+
+    nixosModules = {
+      spotify-inhibit-sleepd = import modules/spotify-inhibit-sleepd;
+    };
   } // flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system: let
     pkgs = nixpkgs.legacyPackages.${system};
   in {
     packages = {
-      iosevka-custom = pkgs.callPackage ./packages/iosevka-custom.nix {};
-      gfm-preview = pkgs.callPackage ./packages/gfm-preview {};
-      conan = pkgs.callPackage ./packages/conan.nix {};
+      iosevka-custom = pkgs.callPackage packages/iosevka-custom.nix {};
+      gfm-preview = pkgs.callPackage packages/gfm-preview {};
+      conan = pkgs.callPackage packages/conan.nix {};
     };
   });
 }

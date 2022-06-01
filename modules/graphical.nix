@@ -38,6 +38,7 @@ in {
       desktopManager.plasma5.enable = true;
     };
 
+    services.spotify-inhibit-sleepd.enable = true;
     programs.kdeconnect.enable = true;
     environment.systemPackages = with pkgs; [
       xclip # System clipboard support in terminal Emacs
