@@ -30,7 +30,7 @@ stdenv.mkDerivation rec {
     desktopName = "Conan";
     genericName = "Proof Editor";
     comment = meta.description;
-    categories = "Education";
+    categories = [ "Education" ];
   };
 
   meta = with lib; {

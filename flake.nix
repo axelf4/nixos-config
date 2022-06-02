@@ -30,7 +30,7 @@
       (mkHost "x86_64-linux" "axel-g751jy")
       (mkHost "aarch64-linux" "axel-pi4")
     ];
-  } // flake-utils.lib.eachDefaultSystem (system: let
+  } // flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system: let
     pkgs = nixpkgs.legacyPackages.${system};
   in {
     packages = {
