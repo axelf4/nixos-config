@@ -4,14 +4,14 @@ let
 
   editorDesktopItem = pkgs.makeDesktopItem {
     name = "editor";
-    desktopName = "Editor";
+    desktopName = "Text Editor";
+    noDisplay = true;
     comment = "Edit text";
+    icon = "accessories-text-editor";
     # Lookup $VISUAL in the user's preferred shell
-    exec = ''/bin/sh -c "exec \\\\"\\\\\$SHELL\\\\" -lc 'exec \\\\\$VISUAL \\\\"\\\\\$@\\\\"' \\\\"\\\\\$SHELL\\\\" \\\\"\\\\\$@\\\\"" /bin/sh %F'';
+    exec = ''/bin/sh -c "exec \\"\\$SHELL\\" -lc 'exec \\$VISUAL \\"\\$@\\"' \\"\\$SHELL\\" \\"\\$@\\"" /bin/sh %F'';
     terminal = true;
     mimeTypes = [ "text/plain" ];
-    icon = "emacs";
-    noDisplay = true;
   };
 in {
   options.graphical = {
