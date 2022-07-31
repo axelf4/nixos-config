@@ -2,9 +2,10 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-22.05";
     flake-utils.url = "github:numtide/flake-utils";
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = inputs@{ self, nixpkgs, flake-utils }: {
+  outputs = inputs@{ self, nixpkgs, flake-utils, nixos-hardware }: {
     nixosConfigurations = let
       mkHost = system: name: {
         inherit name;
@@ -23,6 +24,7 @@
             ./configuration.nix
             (modules/hosts + "/${name}")
           ];
+          specialArgs = { inherit nixos-hardware; };
         };
       };
     in builtins.listToAttrs [
