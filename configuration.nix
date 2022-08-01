@@ -72,7 +72,11 @@
       publicKeyFile = pubkeys/chalmers_ssh_host_ed25519_key.pub;
     };
   };
-  services.openssh.enable = true; # Enable the OpenSSH daemon
+  # Enable the OpenSSH daemon
+  services.openssh = {
+    enable = true;
+    passwordAuthentication = false;
+  };
 
   services.printing.enable = true; # Enable CUPS to print documents
 
@@ -81,7 +85,7 @@
   users.users.axel = {
     isNormalUser = true;
     description = "Axel Forsman";
-    extraGroups = [ "wheel" "networkmanager" "video" "docker" "wireshark" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "wireshark" ];
     hashedPassword = "$6$SdpjwG9cIGv$yBZ2HQ7gTNkEg54UW2uM7nIZ5ARv0GNNw/IVDLszolz8pz/fVfNJaW2ktIBMcB30HGOkGKn4koMfKocTjMHNE.";
   };
 
