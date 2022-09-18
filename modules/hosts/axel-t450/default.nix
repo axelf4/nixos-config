@@ -14,6 +14,8 @@
   '';
 
   hardware.cpu.intel.updateMicrocode = true;
+  # Hardware video acceleration via VA-API
+  hardware.opengl.extraPackages = with pkgs; [ intel-media-driver ];
 
   graphical.enable = true;
   development.enable = true;
