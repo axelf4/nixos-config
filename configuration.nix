@@ -44,15 +44,18 @@
   systemd.tmpfiles.rules = [ "w /sys/class/graphics/fbcon/cursor_blink - - - - 0" ];
 
   nixpkgs.config.allowUnfree = true;
+  environment.defaultPackages = [];
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     (emacs28-nox.override { nativeComp = true; })
     tmux curl git ripgrep
     zip unzip
+    rsync strace
 
     (callPackage packages/spotify-mix-playlists {})
     (callPackage packages/open-csb-door {})
   ];
+  environment.variables.EDITOR = "${pkgs.ed}/bin/ed";
 
   programs.gnupg.agent = {
     enable = true;

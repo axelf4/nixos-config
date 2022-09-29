@@ -12,7 +12,6 @@ in {
       rustfmt rust-analyzer
       nodePackages.prettier nodePackages.typescript-language-server
       black
-      nodePackages.purty # PureScript formatter
       shellcheck
       gfm-preview
     ];
