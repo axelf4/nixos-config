@@ -19,6 +19,14 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    security.rtkit.enable = true;
+    # Enable PipeWire for audio
+    services.pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+    };
+
     # Enable the X11 windowing system
     services.xserver = {
       enable = true;

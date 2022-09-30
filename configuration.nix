@@ -6,11 +6,7 @@
     modules/development.nix
   ];
 
-  hardware = {
-    pulseaudio.enable = true;
-    bluetooth.enable = true;
-  };
-  sound.enable = true;
+  hardware.bluetooth.enable = true;
   location.provider = "geoclue2";
   networking.networkmanager.enable = true;
   # Make strongSwan aware of NetworkManager config (see NixOS/nixpkgs#64965)
