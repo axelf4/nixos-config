@@ -13,7 +13,6 @@
     "acpi_osi=" # Fix brightness keys
   ];
 
-  hardware.cpu.intel.updateMicrocode = true;
   services.xserver.videoDrivers = [ "nvidia" ];
 
   services.tlp.enable = true;

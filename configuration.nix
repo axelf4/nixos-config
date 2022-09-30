@@ -2,13 +2,11 @@
 
 {
   imports = [
-    modules/spotify-inhibit-sleepd
     modules/graphical.nix
     modules/development.nix
   ];
 
   hardware = {
-    enableRedistributableFirmware = true;
     pulseaudio.enable = true;
     bluetooth.enable = true;
   };

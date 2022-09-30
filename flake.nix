@@ -11,7 +11,7 @@
         inherit name;
         value = nixpkgs.lib.nixosSystem {
           inherit system;
-          modules = [
+          modules = builtins.attrValues self.nixosModules ++ [
             {
               system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
               nix.registry.nixpkgs.flake = nixpkgs; # Pin nixpkgs flake
@@ -20,7 +20,6 @@
               # Extend nixpkgs with packages from this flake
               nixpkgs.overlays = [ (final: prev: self.packages.${system}) ];
             }
-            nixpkgs.nixosModules.notDetected
             ./configuration.nix
             (modules/hosts + "/${name}")
           ];
