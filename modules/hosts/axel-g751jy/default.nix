@@ -9,13 +9,13 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  powerManagement.cpuFreqGovernor = "performance";
+
   boot.kernelParams = [
     "acpi_osi=" # Fix brightness keys
   ];
 
   services.xserver.videoDrivers = [ "nvidia" ];
-
-  services.tlp.enable = true;
 
   graphical.enable = true;
   development.enable = true;
