@@ -39,6 +39,7 @@
 
   nixpkgs.config.allowUnfree = true;
   environment.defaultPackages = [];
+  programs.nano.syntaxHighlight = false; # Avoid dependency on nano (#195795)
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     (emacs28-nox.override { nativeComp = true; })
@@ -87,6 +88,8 @@
   };
 
   nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+
     # Binary cache for Haskell.nix
     substituters = [
       "https://cache.iog.io"
@@ -95,7 +98,4 @@
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
     ];
   };
-  nix.extraOptions = ''
-    experimental-features = nix-command flakes
-  '';
 }
