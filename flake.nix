@@ -41,6 +41,7 @@
     packages = {
       iosevka-custom = pkgs.callPackage packages/iosevka-custom.nix {};
       gfm-preview = pkgs.callPackage packages/gfm-preview {};
+      texlive-nix-pm = pkgs.callPackage packages/texlive-nix-pm {};
       conan = pkgs.callPackage packages/conan.nix {};
     };
   });

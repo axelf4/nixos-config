@@ -14,6 +14,7 @@ in {
       black
       shellcheck
       gfm-preview
+      texlive-nix-pm
     ];
 
     virtualisation.podman = {

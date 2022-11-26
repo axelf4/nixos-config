@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Wrapper around TeX compilers that when a replacement for a missing
+# STY file is prompted for, looks up the necessary package in a
+# generated database and builds its Nixpkgs package. Works around the
+# fact that dependency information for TexLive packages is incomplete.
+
+usage() {
+	>&2 echo "Usage: $0 TEX-CMD"
+	exit 1
+}
+[[ $# -eq 0 || $1 =~ ^- ]] && usage
+
+parse_package() {
+	package=
+	runfiles=()
+	while IFS= read -r line; do
+		until case "$line" in
+				  'name '*) package=${line#name } ;;
+				  'runfiles '*)
+					  while IFS= read -r line && [ "${line:0:1}" = ' ' ]; do
+						  runfiles+=("${line:1}")
+					  done
+					  false ;;
+				  '') break 2 ;;
+			  esac
+		do :; done
+	done
+	[ -n "$package" ]
+}
+
+fndb_file="${XDG_DATA_HOME:-"$HOME"/.local/share}"/texlive-nix-pm/fndb.bash
+if [ -f "$fndb_file" ]; then
+	. "$fndb_file"
+else
+	read -r -n1 -p "Generating TeX file name database at '$fndb_file'. Proceed? [y/N] "
+	echo
+	case "$REPLY" in
+		y | Y) ;;
+		*) echo Aborting...; exit 1 ;;
+	esac
+	# Generate file name/package database from TexLive package database
+	mkdir -p "$(dirname "$fndb_file")"
+	declare -A fndb
+	while parse_package; do
+		echo "parsed package: $package"
+		for file in "${runfiles[@]}"; do
+			case "$file" in
+				*.sty) fndb["$(basename "$file")"]="$package" ;;
+			esac
+		done
+	done <<<"$(curl --fail --no-progress-meter -L \
+		 "https://texlive.info/tlnet-archive/$(date +%Y/%02m/%02d)/tlnet/tlpkg/texlive.tlpdb.xz" \
+		 | xzcat)"
+	declare -p fndb >"$fndb_file"
+fi
+
+tmpdir=$(mktemp -d) || exit 1
+mkfifo "$tmpdir"/stdin
+exec 3<>"$tmpdir"/stdin
+
+max_print_line=4096 \
+	"$@" --interaction=scrollmode <&3 \
+	|& while IFS= read -r line; do
+		   echo "$line"
+		   if [[ $line =~ ^'! LaTeX Error: File `'([^"'"]+)"'"' not found.'$ ]]; then
+			   file="${BASH_REMATCH[1]}"
+			   package="${fndb[$file]}"
+			   # shellcheck disable=SC2046 # Want word splitting (Nix out paths are safe)
+			   abs_file=$(find $(nix-build --no-out-link '<nixpkgs>' -A texlive."$package".pkgs) \
+							   -name "$file" -print -quit)
+			   >&2 printf "\n\tBuilt package '%s' to load '%s'\n\n" "$package" "$abs_file"
+			   >&3 echo "$abs_file"
+		   fi
+	   done
