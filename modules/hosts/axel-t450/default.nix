@@ -15,8 +15,6 @@
   graphical.enable = true;
   development.enable = true;
 
-  services.tlp.enable = true;
-
   programs.steam.enable = true;
 
   system.stateVersion = "22.05";

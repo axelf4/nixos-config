@@ -42,7 +42,7 @@
   programs.nano.syntaxHighlight = false; # Avoid dependency on nano (#195795)
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    (emacs28-nox.override { nativeComp = true; })
+    emacs-nox
     tmux curl git ripgrep
     zip unzip
     rsync strace

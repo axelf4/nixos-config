@@ -43,7 +43,10 @@ in {
       };
 
       # Enable the KDE Desktop Environment
-      desktopManager.plasma5.enable = true;
+      desktopManager.plasma5 = {
+        enable = true;
+        excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
+      };
     };
 
     services.spotify-inhibit-sleepd.enable = true;
