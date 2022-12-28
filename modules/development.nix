@@ -16,6 +16,7 @@ in {
       hunspell
       gfm-preview
       texlive-nix-pm
+      (callPackage ../packages/pastebin {})
     ];
     environment.variables.DICPATH = lib.makeSearchPath "share/hunspell"
       (with pkgs.hunspellDicts; [ en-us sv-se ]);
