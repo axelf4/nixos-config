@@ -13,9 +13,12 @@ in {
       nodePackages.prettier nodePackages.typescript-language-server
       black
       shellcheck
+      hunspell
       gfm-preview
       texlive-nix-pm
     ];
+    environment.variables.DICPATH = lib.makeSearchPath "share/hunspell"
+      (with pkgs.hunspellDicts; [ en-us sv-se ]);
 
     virtualisation.podman = {
       enable = true;
