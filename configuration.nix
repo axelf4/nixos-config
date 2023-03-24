@@ -63,7 +63,7 @@
     storeOnly = true;
   };
   programs.ssh.knownHosts = {
-    "github.com".publicKeyFile = pubkeys/github_ssh_host_rsa_key.pub;
+    "github.com".publicKeyFile = pubkeys/github_ssh_host_ed25519_key.pub;
     "gitlab.com".publicKeyFile = pubkeys/gitlab_ssh_host_ed25519_key.pub;
     chalmers = {
       hostNames = [ "remote11.chalmers.se" "remote12.chalmers.se" ];
