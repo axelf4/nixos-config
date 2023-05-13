@@ -23,7 +23,6 @@ in {
     # Enable PipeWire for audio
     services.pipewire = {
       enable = true;
-      alsa.enable = true;
       pulse.enable = true;
     };
 
@@ -51,14 +50,23 @@ in {
 
     services.spotify-inhibit-sleepd.enable = true;
     programs.kdeconnect.enable = true;
+    programs.firefox = {
+      enable = true;
+      policies = {
+        DisableFirefoxStudies = true;
+        DisablePocket = true;
+        Preferences = {
+          "browser.compactmode.show" = { Value = true; Status = "default"; };
+        };
+      };
+    };
     environment.systemPackages = with pkgs; [
       xclip # System clipboard support in terminal Emacs
       editorDesktopItem
       (callPackage ../packages/edit-selection {})
       ark
 
-      firefox alacritty spotify
-      gimp inkscape
+      alacritty spotify gimp inkscape
     ];
     environment.variables = {
       TERMINAL = "alacritty";
@@ -68,6 +76,7 @@ in {
     xdg.mime.defaultApplications = {
       # All text/* MIME types are subclasses of text/plain
       "text/plain" = "editor.desktop";
+      "application/pdf" = "firefox.desktop";
     };
 
     fonts = {
