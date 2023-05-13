@@ -32,21 +32,15 @@ in {
       autoRepeatDelay = 300;
       autoRepeatInterval = 300;
       
-      # Enable touchpad support
-      libinput = {
-        enable = true;
-        touchpad = {
-          naturalScrolling = true;
-          tappingDragLock = false; # Quit dragging immediately after release
-        };
+      libinput.touchpad = {
+        naturalScrolling = true;
+        tappingDragLock = false; # Quit dragging immediately after release
       };
 
       # Enable the KDE Desktop Environment
-      desktopManager.plasma5 = {
-        enable = true;
-        excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
-      };
+      desktopManager.plasma5.enable = true;
     };
+    environment.plasma5.excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
 
     services.spotify-inhibit-sleepd.enable = true;
     programs.kdeconnect.enable = true;
