@@ -6,6 +6,7 @@
     modules/development.nix
   ];
 
+  boot.loader.systemd-boot.editor = false;
   hardware.bluetooth.enable = true;
   location.provider = "geoclue2";
   networking.networkmanager.enable = true;
