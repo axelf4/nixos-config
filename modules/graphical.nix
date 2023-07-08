@@ -13,6 +13,35 @@ let
     terminal = true;
     mimeTypes = [ "text/plain" ];
   };
+
+  startde = pkgs.writeScript "startde" ''
+    #!/usr/bin/env bash
+    shopt -s lastpipe
+    find -L ${config.services.xserver.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
+      -type f -name '*.desktop' -printf '%H\0%P\0' \
+      | while IFS= read -rd ''' dir && IFS= read -rd ''' file; do
+      desktopFileId="''${file//'/'/-}"
+      [[ "$desktopFileId" == "''${1:-plasmawayland.desktop}" ]] || continue
+
+      while IFS= read -r line; do # Parse desktop file
+        case "$line" in
+          \#* | '[Desktop Entry]') continue ;;
+          \[*\]) break ;; # Desktop Entry group header must come first
+        esac
+        if [[ "$line" =~ ^([A-Za-z0-9-]+)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
+          value="''${BASH_REMATCH[2]//'\\'/\\}"
+          case "''${BASH_REMATCH[1]}" in
+            Name) name="$value" ;;
+            Exec) [[ "$value" =~ ^[\`$]|[^\\][\`$] ]] && { >&2 echo Invalid Exec; exit 1; }
+              declare -ar exec="($value)" ;;
+          esac
+        fi
+      done <"$dir/$file"
+      echo "Starting $name..."
+      exec "''${exec[@]}" # TODO Prepend startx if Type=XSession
+    done
+    >&2 echo 'Desktop entry not found'; exit 1
+  '';
 in {
   options.graphical = {
     enable = lib.mkEnableOption "a graphical environment";
@@ -31,7 +60,7 @@ in {
       enable = true;
       autoRepeatDelay = 300;
       autoRepeatInterval = 300;
-      
+
       libinput.touchpad = {
         naturalScrolling = true;
         tappingDragLock = false; # Quit dragging immediately after release
@@ -41,6 +70,11 @@ in {
       desktopManager.plasma5.enable = true;
     };
     environment.plasma5.excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
+
+    services.xserver.displayManager.lightdm.enable = false;
+    environment.loginShellInit = ''
+      [ "$XDG_VTNR" = 1 ] && [ -z "$DISPLAY" ] && exec ${startde}
+    '';
 
     services.spotify-inhibit-sleepd.enable = true;
     programs.kdeconnect.enable = true;
@@ -58,7 +92,6 @@ in {
       xclip # System clipboard support in terminal Emacs
       editorDesktopItem
       (callPackage ../packages/edit-selection {})
-      ark
 
       alacritty spotify gimp inkscape
     ];
