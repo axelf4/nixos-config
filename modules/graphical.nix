@@ -85,11 +85,13 @@ in {
         DisablePocket = true;
         Preferences = {
           "browser.compactmode.show" = { Value = true; Status = "default"; };
+          "browser.urlbar.suggest.calculator" = { Value = true; Status = "default"; };
+          "extensions.quarantinedDomains.enabled" = { Value = false; Status = "default"; };
         };
       };
     };
     environment.systemPackages = with pkgs; [
-      xclip # System clipboard support in terminal Emacs
+      wl-clipboard # System clipboard support in terminal Emacs
       editorDesktopItem
       (callPackage ../packages/edit-selection {})
 

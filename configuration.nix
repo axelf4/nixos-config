@@ -52,6 +52,7 @@
     (callPackage packages/open-csb-door {})
   ];
   environment.variables.EDITOR = "${pkgs.ed}/bin/ed";
+  environment.localBinInPath = true; # Prepend ~/.local/bin to $PATH
 
   programs.gnupg.agent = {
     enable = true;
