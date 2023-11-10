@@ -1,8 +1,9 @@
 { config, pkgs, lib, ... }:
+
 let
   package = pkgs.stdenv.mkDerivation {
     pname = "spotify-inhibit-sleepd";
-    version = "0.1.0";
+    version = "1.0.0";
     src = ./.;
     nativeBuildInputs = with pkgs; [ pkg-config cmake ];
     buildInputs = with pkgs; [ glib ];

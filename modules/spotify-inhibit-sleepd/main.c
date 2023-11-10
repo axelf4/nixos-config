@@ -18,30 +18,28 @@ enum InhibitFlags {
 struct State {
 	GDBusConnection *session;
 	GDBusProxy *inhibit_proxy;
-	char *inhibit_handle;
-	char *current_name;
+	char *inhibit_handle,
+		*current_name;
 };
 
 static void inhibit(struct State *st) {
 	if (st->inhibit_handle) return;
-
 	GVariantBuilder options;
 	g_variant_builder_init(&options, G_VARIANT_TYPE_VARDICT);
 	g_variant_builder_add(&options, "{sv}", "reason", g_variant_new_string("Spotify is playing audio"));
-	GVariant *res = g_dbus_proxy_call_sync(
-		st->inhibit_proxy,
-		"Inhibit",
-		g_variant_new("(su@a{sv})", /* window */ "", INHIBIT_SUSPEND, g_variant_builder_end(&options)),
-		G_DBUS_CALL_FLAGS_NONE, G_MAXINT, NULL, NULL);
-	if (res) {
-		g_variant_get(res, "(o)", &st->inhibit_handle);
-		g_variant_unref(res);
-	}
+	GVariant *res;
+	if (!(res = g_dbus_proxy_call_sync(
+				st->inhibit_proxy,
+				"Inhibit",
+				g_variant_new("(su@a{sv})", /* window */ "", INHIBIT_SUSPEND,
+					g_variant_builder_end(&options)),
+				G_DBUS_CALL_FLAGS_NONE, G_MAXINT, NULL, NULL))) return;
+	g_variant_get(res, "(o)", &st->inhibit_handle);
+	g_variant_unref(res);
 }
 
 static void uninhibit(struct State *st) {
 	if (!st->inhibit_handle) return;
-
 	g_dbus_connection_call(
 		st->session,
 		"org.freedesktop.portal.Desktop",
@@ -61,22 +59,21 @@ static void on_properties_changed(GDBusConnection *c,
 	struct State *st = user_data;
 	GVariant *changed_properties;
 	g_variant_get(parameters, "(s@a{sv}as)", NULL, &changed_properties, NULL);
-	if (g_variant_n_children(changed_properties) == 0) return;
+	if (!g_variant_n_children(changed_properties)) return;
 
 	GVariantIter *iter;
 	g_variant_get(changed_properties, "a{sv}", &iter);
 	const gchar *key;
 	GVariant *value;
 	while (g_variant_iter_loop(iter, "{&sv}", &key, &value)) {
-		if (strncmp(key, "PlaybackStatus", sizeof "PlaybackStatus") != 0) continue;
+		if (strcmp(key, "PlaybackStatus") != 0) continue;
 
-		gboolean is_playing = strncmp(g_variant_get_string(value, NULL), "Playing", sizeof "Playing") == 0;
+		gboolean is_playing = strcmp(g_variant_get_string(value, NULL), "Playing") == 0;
 		if (is_playing) {
 			inhibit(st);
 			g_free(st->current_name);
 			st->current_name = g_strdup(sender_name);
-		} else
-			uninhibit(st);
+		} else uninhibit(st);
 	}
 	g_variant_iter_free(iter);
 }
@@ -99,8 +96,7 @@ static void on_name_owner_changed(GDBusConnection *c,
 	if (new_owner[0] != '\0') {
 		g_free(st->current_name);
 		st->current_name = g_strdup(new_owner);
-	} else
-		uninhibit(st);
+	} else uninhibit(st);
 }
 
 gint main(gint argc, gchar *argv[]) {
@@ -120,12 +116,7 @@ gint main(gint argc, gchar *argv[]) {
 		fprintf(stderr, "g_dbus_proxy_new_sync error: %s\n", error->message);
 		return 1;
 	}
-	struct State st = {
-		.session = session,
-		.inhibit_proxy = inhibit_proxy,
-		.inhibit_handle = NULL,
-		.current_name = NULL,
-	};
+	struct State st = { .session = session, .inhibit_proxy = inhibit_proxy };
 
 	g_dbus_connection_signal_subscribe(
 		session,
