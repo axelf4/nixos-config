@@ -10,7 +10,7 @@
     g = "double-storey-open"
     asterisk = "penta-low"
     number-sign = "upright-open"
-    at = "short"
+    at = "compact"
 
     [buildPlans.iosevka-custom.weights]
     regular = "default.regular"

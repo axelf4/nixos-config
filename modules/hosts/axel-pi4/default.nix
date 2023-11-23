@@ -12,7 +12,7 @@
     };
   };
 
-  boot.tmpOnTmpfs = true;
+  boot.tmp.useTmpfs = true;
 
   system.stateVersion = "22.05";
 }

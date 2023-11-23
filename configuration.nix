@@ -19,14 +19,14 @@
     extraLocaleSettings = { LC_MESSAGES = "en_US.UTF-8"; };
   };
   console.useXkbConfig = true;
-  services.xserver = {
+  services.xserver.xkb = {
     layout = "se-custom";
-    xkbOptions = "caps:escape,shift:both_capslock,grp:ctrls_toggle";
     extraLayouts.se-custom = {
       description = "SE layout with customizations";
       languages = [ "swe" "eng" ];
       symbolsFile = xkb/symbols/se-custom;
     };
+    options = "caps:escape,shift:both_capslock,grp:ctrls_toggle";
   };
   time.timeZone = "Europe/Stockholm";
 
@@ -40,10 +40,10 @@
 
   nixpkgs.config.allowUnfree = true;
   environment.defaultPackages = [];
-  programs.nano.syntaxHighlight = false; # Avoid dependency on nano (#195795)
+  programs.nano.enable = false;
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    emacs-nox
+    emacs29-nox
     tmux curl git ripgrep
     zip unzip
     rsync strace

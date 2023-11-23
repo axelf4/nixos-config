@@ -109,8 +109,9 @@ in {
     };
 
     fonts = {
-      fonts = [ pkgs.iosevka-custom ];
+      packages = [ pkgs.iosevka-custom ];
       fontconfig.defaultFonts.monospace = [ "Iosevka" ];
+      fontconfig.subpixel.rgba = "rgb";
     };
   };
 }
