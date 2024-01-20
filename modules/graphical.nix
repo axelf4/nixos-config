@@ -14,8 +14,7 @@ let
     mimeTypes = [ "text/plain" ];
   };
 
-  startde = pkgs.writeScript "startde" ''
-    #!/usr/bin/env bash
+  startde = pkgs.runCommandLocal "startde" {} ''
     shopt -s lastpipe
     find -L ${config.services.xserver.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
       -type f -name '*.desktop' -printf '%H\0%P\0' \
@@ -31,14 +30,19 @@ let
         if [[ "$line" =~ ^([A-Za-z0-9-]+)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
           value="''${BASH_REMATCH[2]//'\\'/\\}"
           case "''${BASH_REMATCH[1]}" in
-            Name) name="$value" ;;
+            Name) name=$value ;;
             Exec) [[ "$value" =~ ^[\`$]|[^\\][\`$] ]] && { >&2 echo Invalid Exec; exit 1; }
-              declare -ar exec="($value)" ;;
+              declare -ar exec="($value)" ;; # TODO Prepend startx if Type=XSession
           esac
         fi
       done <"$dir/$file"
-      echo "Starting $name..."
-      exec "''${exec[@]}" # TODO Prepend startx if Type=XSession
+      cat << EOF >$out
+    #!/bin/sh
+    echo 'Starting $name...'
+    exec ''${exec[@]@Q}
+    EOF
+      chmod +x $out
+      exit
     done
     >&2 echo 'Desktop entry not found'; exit 1
   '';
