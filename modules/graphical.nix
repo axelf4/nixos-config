@@ -19,20 +19,19 @@ let
     find -L ${config.services.xserver.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
       -type f -name '*.desktop' -printf '%H\0%P\0' \
       | while IFS= read -rd ''' dir && IFS= read -rd ''' file; do
-      desktopFileId="''${file//'/'/-}"
-      [[ "$desktopFileId" == "''${1:-plasmawayland.desktop}" ]] || continue
-
+      desktopFileId=''${file//'/'/-}
+      [[ $desktopFileId == ${config.services.xserver.displayManager.defaultSession}.desktop ]] || continue
       while IFS= read -r line; do # Parse desktop file
-        case "$line" in
+        case $line in
           \#* | '[Desktop Entry]') continue ;;
           \[*\]) break ;; # Desktop Entry group header must come first
         esac
-        if [[ "$line" =~ ^([A-Za-z0-9-]+)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
-          value="''${BASH_REMATCH[2]//'\\'/\\}"
-          case "''${BASH_REMATCH[1]}" in
+        if [[ $line =~ ^([A-Za-z0-9-]+)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
+          value=''${BASH_REMATCH[2]//'\\'/\\}
+          case ''${BASH_REMATCH[1]} in
             Name) name=$value ;;
-            Exec) [[ "$value" =~ ^[\`$]|[^\\][\`$] ]] && { >&2 echo Invalid Exec; exit 1; }
-              declare -ar exec="($value)" ;; # TODO Prepend startx if Type=XSession
+            Exec) [[ $value =~ ^[\`$]|[^\\][\`$] ]] && { >&2 echo Invalid Exec; exit 1; }
+              declare -ar exec=($value) ;; # TODO Prepend startx if Type=XSession
           esac
         fi
       done <"$dir/$file"
@@ -72,6 +71,7 @@ in {
 
       # Enable the KDE Desktop Environment
       desktopManager.plasma5.enable = true;
+      displayManager.defaultSession = "plasmawayland";
     };
     environment.plasma5.excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
 
