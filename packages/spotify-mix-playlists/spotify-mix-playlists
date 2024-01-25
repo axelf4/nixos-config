@@ -6,11 +6,11 @@ if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ]; then
 	exit 1
 fi
 
-user_id="$1"
+user_id=$1
 [ "$user_id" ] || { echo 'Missing argument user_id. Exiting...'; exit 1; }
 
 if ! [ "$REFRESH_TOKEN" ]; then
-	redirect_uri="http://$(dig +short myip.opendns.com @resolver1.opendns.com)/"
+	redirect_uri=http://$(dig +short myip.opendns.com @resolver1.opendns.com)/
 	echo "To obtain refresh token, port forward port 80 and open:
 
     https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=code&redirect_uri=$redirect_uri&scope=playlist-modify-public
@@ -38,14 +38,14 @@ powerset() { [ $# -gt 0 ] && { shift; powerset "$@"; } \
 # where playlist is the Spotify ID for the playlist.
 playlist_tracks() {
 	# API endpoint for next page of items
-	next="https://api.spotify.com/v1/playlists/$1/tracks"
+	next=https://api.spotify.com/v1/playlists/$1/tracks
 	while
 		items=$(curl -X GET "$next" \
 					 -H "Authorization: Bearer $access_token" \
 					 --silent --show-error)
 		echo "$items" | jq --raw-output '.items[] | select(.track) | .track.uri'
 
-		next=$(echo "$items" | jq --raw-output --exit-status '.next')
+		next=$(echo "$items" | jq --raw-output --exit-status .next)
 	do :; done
 }
 
@@ -79,7 +79,7 @@ access_token=$(curl -X POST https://accounts.spotify.com/api/token \
 	-H "Authorization: Basic $(printf "%s:%s" "$CLIENT_ID" "$CLIENT_SECRET" | base64 --wrap=0)" \
 	-d grant_type=client_credentials \
 	--silent --show-error \
-	| jq --raw-output '.access_token')
+	| jq --raw-output .access_token)
 
 # Fetch all playlists
 playlists=$(curl -X GET "https://api.spotify.com/v1/users/$user_id/playlists" \
@@ -91,8 +91,8 @@ printf "Mixing these playlists from user %s:\n%s\n\n" "$user_id" "$playlists"
 # Fetch all tracks in the playlists
 echo "$playlists" | while read -r id name; do
 	mkdir "$id" # Create directory for the playlist in question
-	echo "$name" > "$id/name" # Store the playlist name in a file
-	playlist_tracks "$id" > "$id/tracks" # Store tracks in other file
+	echo "$name" >"$id/name" # Store the playlist name in a file
+	playlist_tracks "$id" >"$id/tracks" # Store tracks in other file
 done
 
 # Request a refreshed access token for setting mixed playlists
@@ -100,11 +100,11 @@ access_token=$(curl -X POST https://accounts.spotify.com/api/token \
 	-H "Authorization: Basic $(printf "%s:%s" "$CLIENT_ID" "$CLIENT_SECRET" | base64 --wrap=0)" \
 	-d grant_type=refresh_token -d refresh_token="$REFRESH_TOKEN" \
 	--silent --show-error \
-	| jq --raw-output '.access_token')
+	| jq --raw-output .access_token)
 user_id=$(curl -X GET https://api.spotify.com/v1/me \
 	-H "Authorization: Bearer $access_token" \
 	--silent --show-error \
-	| jq --raw-output '.id')
+	| jq --raw-output .id)
 # Fetch existing aggregate playlists to avoid creating duplicates
 existing=$(curl -X GET "https://api.spotify.com/v1/users/$user_id/playlists" \
 	-H "Authorization: Bearer $access_token" \
@@ -134,7 +134,7 @@ powerset * | while read -r first second third rest; do
 					  'input as $name | {name: $name, description: "Nice combined playlist!"}')" \
 					  -H "Content-Type: application/json" \
 					  --silent --show-error \
-					 | jq --raw-output '.id')
+					 | jq --raw-output .id)
 	fi
 
 	# Concatenate tracks of all playlists

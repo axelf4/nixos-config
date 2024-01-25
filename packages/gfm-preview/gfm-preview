@@ -12,8 +12,8 @@ usage() {
 port=8080
 while getopts p: name; do
 	case $name in
-		p) port="$OPTARG";;
-		?) usage;;
+		p) port=$OPTARG ;;
+		?) usage ;;
 	esac
 done
 shift $((OPTIND - 1))

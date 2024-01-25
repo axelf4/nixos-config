@@ -8,7 +8,7 @@ With no FILE, or when FILE is -, read standard input."
 	exit 1
 }
 
-[ "$1" != - ] && file="$1"
+[ "$1" != - ] && file=$1
 [ -z "$file" ] || [ -f "$file" ] || usage
 
 curl --fail --no-progress-meter \
