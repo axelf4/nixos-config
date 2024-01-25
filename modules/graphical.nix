@@ -17,8 +17,8 @@ let
   startde = pkgs.runCommandLocal "startde" {} ''
     shopt -s lastpipe
     find -L ${config.services.xserver.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
-      -type f -name '*.desktop' -printf '%H\0%P\0' \
-      | while IFS= read -rd ''' dir && IFS= read -rd ''' file; do
+      -type f -name '*.desktop' -printf '%H\0%P\0' |
+      while IFS= read -rd ''' dir && IFS= read -rd ''' file; do
       desktopFileId=''${file//'/'/-}
       [[ $desktopFileId == ${config.services.xserver.displayManager.defaultSession}.desktop ]] || continue
       while IFS= read -r line; do # Parse desktop file
@@ -46,9 +46,7 @@ let
     >&2 echo 'Desktop entry not found'; exit 1
   '';
 in {
-  options.graphical = {
-    enable = lib.mkEnableOption "a graphical environment";
-  };
+  options.graphical.enable = lib.mkEnableOption "a graphical environment";
 
   config = lib.mkIf cfg.enable {
     security.rtkit.enable = true;
@@ -77,7 +75,7 @@ in {
 
     services.xserver.displayManager.lightdm.enable = false;
     environment.loginShellInit = ''
-      [ "$XDG_VTNR" = 1 ] && [ -z "$DISPLAY" ] && exec ${startde}
+      ! [ "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ] && exec ${startde}
     '';
 
     services.spotify-inhibit-sleepd.enable = true;
@@ -100,7 +98,7 @@ in {
       editorDesktopItem
       (callPackage ../packages/edit-selection {})
 
-      alacritty spotify gimp inkscape
+      alacritty spotify inkscape
     ];
     environment.variables = {
       TERMINAL = "alacritty";

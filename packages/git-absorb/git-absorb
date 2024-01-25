@@ -4,18 +4,16 @@
 
 shopt -s lastpipe nullglob
 
-boundary=$(git rev-parse "${1:-HEAD~5}" 2>/dev/null) || boundary=
+boundary=$(git rev-parse "${1:-HEAD~5}" 2>/dev/null)
 fixupped_commit() {
 	git blame --incremental -L "$2" "$boundary".. -- "$1" | IFS=\  read -r hash _
 	[[ $hash != "$boundary" ]]
 }
 
-tmp=$(mktemp -d) || { echo 'Failed to create temporary directory'; exit 1; }
-# shellcheck disable=SC2064
-trap "rm -rf -- '$tmp'" EXIT
+tmp=$(mktemp -d) || { >&2 echo 'Failed to create temporary directory'; exit 1; }
+trap 'rm -rf -- "$tmp"' EXIT
 
-git diff-index --cached --unified=0 --no-prefix --ignore-submodules HEAD \
-	| while :; do
+git diff-index --cached --unified=0 --no-prefix --ignore-submodules HEAD | while :; do
 	while IFS=\  read -r ext_header
 		  case $ext_header in '') break 2 ;; 'index '*) false; esac
 	do :; done
@@ -34,7 +32,7 @@ git diff-index --cached --unified=0 --no-prefix --ignore-submodules HEAD \
 +++ b/$b
 EOF
 		patched[$hash]=1
-		{ echo "$line"; printf '%s' "${hunk[@]}"; } >>"$tmp/$hash"
+		printf %s\\n%s "$line" "${hunk[@]}" >>"$tmp/$hash"
 	done
 done
 

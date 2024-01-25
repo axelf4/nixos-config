@@ -8,10 +8,10 @@ With no FILE, or when FILE is -, read standard input."
 	exit 1
 }
 
-[ "$1" != - ] && file="$1"
-[ -z "$file" ] || [ -f "$file" ] || usage
+[ "$1" != - ] && file=$1
+[ $# -eq 0 ] || [ -f "$file" ] || usage
 
 curl --fail --no-progress-meter \
 	 ${file:+--form-string filename="$file"} --form "content=<${file:--}" \
-	 --form format=url https://dpaste.org/api/ \
-	|| { >&2 echo "Failed to upload snippet"; exit 1; }
+	 --form format=url https://dpaste.org/api/ ||
+	{ >&2 echo 'Failed to upload snippet'; exit 1; }

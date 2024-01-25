@@ -3,15 +3,15 @@
 
 if test ! -t 0; then
 	# Read from stdin
-	IFS= read -r username && IFS= read -r password \
-		&& { door_id=$1; [ "$door_id" ] || IFS= read -r door_id; }
+	IFS= read -r username && IFS= read -r password &&
+		{ door_id=$1; [ "$door_id" ] || IFS= read -r door_id; }
 elif command -v kwallet-query >/dev/null; then
 	username=$(kwallet-query --folder chalmersstudentbostader.se --read-password username kdewallet) \
 		&& password=$(kwallet-query --folder chalmersstudentbostader.se --read-password password kdewallet) \
 		&& door_id=${1:-$(kwallet-query --folder chalmersstudentbostader.se --read-password door-id kdewallet)}
 else
 	false
-fi || { echo 'Failed to read passwords!'; exit 1; }
+fi || { >&2 echo 'Failed to read passwords.'; exit 1; }
 
 cookies=$(mktemp) || { >&2 echo 'Failed to create cookie-jar.'; exit 1; }
 trap 'rm -f -- "$cookies"' EXIT
@@ -21,30 +21,30 @@ redirect_url=$(curl --fail --no-progress-meter \
 	--cookie "$cookies" --cookie-jar "$cookies" \
 	--data "log=$username" --data "pwd=$password" \
 	--location --output /dev/null --write-out %{url_effective} \
-	https://www.chalmersstudentbostader.se/wp-login.php) \
-		 || { >&2 echo 'Login to CSB failed.'; exit 1; }
+	https://www.chalmersstudentbostader.se/wp-login.php) ||
+	{ >&2 echo 'Login to CSB failed.'; exit 1; }
 case $redirect_url in
-	*'/login/?err=login') echo 'Invalid credentials!'; exit 1 ;;
+	*'/login/?err=login') >&2 echo 'Invalid credentials!'; exit 1 ;;
 esac
 
 # Returns the URL for authenticating to Aptus.
 get_aptus_url() {
 	resp=$(curl --fail --no-progress-meter \
 				--cookie "$cookies" --cookie-jar "$cookies" \
-				'https://www.chalmersstudentbostader.se/widgets/?callback=&widgets[]=aptuslogin@APTUSPORT') \
-		|| { >&2 echo 'Could not fetch Aptus login URL.'; return 1; }
+				'https://www.chalmersstudentbostader.se/widgets/?callback=&widgets[]=aptuslogin@APTUSPORT') ||
+		{ >&2 echo 'Could not fetch Aptus login URL.'; return 1; }
 	resp=${resp#'('}; resp=${resp%');'} # Remove surrounding "(...);"
-	url=$(echo "$resp" | jq --raw-output \
-							'.data."aptuslogin@APTUSPORT".objekt|.[0].aptusUrl') \
-	   || { >&2 echo 'Failed to parse Aptus login URL.'; return 1; }
+	url=$(echo "$resp" |
+			  jq --raw-output '.data."aptuslogin@APTUSPORT".objekt.[0].aptusUrl') ||
+		{ >&2 echo 'Failed to parse Aptus login URL.'; return 1; }
 	echo "$url" | sed 's/ /%20/g'
 }
 
 # Authenticate to Aptus and request to open door
 aptus_url=$(get_aptus_url) || exit $?
 
-curl --fail --fail-early --output /dev/null --no-progress-meter --location \
+curl --fail --fail-early --no-progress-meter --location \
 	 --cookie "$cookies" --cookie-jar "$cookies" \
-	 "$aptus_url" \
-	 "https://apt-www.chalmersstudentbostader.se/AptusPortal/Lock/UnlockEntryDoor/$door_id" \
-	 || { >&2 echo 'Requests to authenticate to Aptus and unlock entrance failed.'; exit 1; }
+	 --output /dev/null "$aptus_url" \
+	 "https://apt-www.chalmersstudentbostader.se/AptusPortal/Lock/UnlockEntryDoor/$door_id" ||
+	{ >&2 echo 'Requests to authenticate to Aptus and unlock entrance failed.'; exit 1; }

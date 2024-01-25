@@ -5,65 +5,57 @@
 # and therefore supports only one active client.
 
 usage() {
-	echo "Usage: $(basename "$0") [-p PORT] <FILE>"
+	>&2 echo "Usage: $(basename "$0") [-p PORT] <FILE>"
 	exit 1
 }
 
 port=8080
 while getopts p: name; do
 	case $name in
-		p) port="$OPTARG";;
-		?) usage;;
+		p) port=$OPTARG ;;
+		?) usage ;;
 	esac
 done
 shift $((OPTIND - 1))
 
 file=${1:-README.md}
-[ -f "$file" ] || { echo "$0: file $file not found"; usage; }
+[ -f "$file" ] || { >&2 echo "$0: file $file not found"; usage; }
 
 path=$(dirname "$file")
-repo=$(git -C "$path" remote 2>/dev/null \
-		   | xargs -rd'\n' -L1 git -C "$path" remote get-url \
-		   | sed -nz 's/.*github.com:\([^/]\+\/[^.]\+\).*/\1/p')
+repo=$(git -C "$path" remote 2>/dev/null |
+		   xargs -rd'\n' -L1 git -C "$path" remote get-url |
+		   sed -nz 's/.*github.com:\([^/]\+\/[^.]\+\).*/\1/p')
 [ "$repo" ] && echo "Repository: $repo"
 
 render() {
 	echo '<!DOCTYPE html>'
-	[ "$repo" ] \
-		&& echo "<head><base href=\"https://github.com/$repo/raw/HEAD/\"></head>"
-
-	curl --silent --show-error -X POST \
-		 -H "Accept: application/vnd.github.v3+json" \
-		 https://api.github.com/markdown \
+	[ "$repo" ] &&
+		echo "<head><base href=\"https://github.com/$repo/raw/HEAD/\"></head>"
+	curl --silent --show-error --location -H 'Accept: application/vnd.github+json' \
 		 --data-binary "$(<"$file" jq --raw-input --slurp --compact-output \
 			 --arg repo "$repo" \
-			 '{text: ., mode: "gfm"} | if $repo == "" then . else .context |= $repo end')"
+			 '{text: ., mode: "gfm"} | if $repo != "" then .context = $repo end')" \
+		 https://api.github.com/markdown
 }
 
 process_request() {
 	read -r _method path _protocol
-	# Read request headers
-	while
-		read -r z
-		[ ${#z} -gt 2 ]
-	do :; done
+	while read -r z; [ ${#z} -gt 2 ]; do :; done # Read request headers
 
-	if ! [ -f "$tmp"/out ] \
-			|| timeout 15s fswatch -1 --event Updated "$file" >/dev/null; then
+	if ! [ -e "$tmp"/out ] ||
+			timeout 15s fswatch -1 --event Updated "$file" >/dev/null; then
 		{ render; echo '<script>(async function() { for (;;) {
 let res = await fetch(location);
 if (res.ok) document.documentElement.innerHTML = await res.text();
 } })()</script>'; } >"$tmp"/out
 	fi
 
-	printf %b "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: $(wc -c <"$tmp"/out)\r\n\r\n"
+	printf 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %u\r\n\r\n' "$(wc -c <"$tmp"/out)"
 	cat "$tmp"/out
 }
 
-tmp=$(mktemp -d) \
-	|| { >&2 echo "Failed to create tmp directory!"; exit 1; }
-# shellcheck disable=SC2064 # Want the current value of tmp
-trap "rm -r '$tmp'" EXIT
+tmp=$(mktemp -d) || { >&2 echo "Failed to create temporary directory"; exit 1; }
+trap 'rm -rf -- "$tmp"' EXIT
 mkfifo "$tmp"/pipe
 
 xdg-open localhost:"$port"
@@ -71,5 +63,5 @@ xdg-open localhost:"$port"
 echo "Listening on http://localhost:$port/"
 while
 	# shellcheck disable=SC2094 # The file is a named pipe
-	nc -l "$port" <"$tmp"/pipe | process_request >"$tmp"/pipe
+	<"$tmp"/pipe nc -l "$port" | process_request >"$tmp"/pipe
 do :; done

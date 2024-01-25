@@ -2,34 +2,35 @@
 # Creates Spotify playlists by combining those of a given user.
 
 if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ]; then
-	echo 'Missing CLIENT_ID or CLIENT_SECRET. Exiting...'
+	>&2 echo 'Missing CLIENT_ID or CLIENT_SECRET. Exiting...'
 	exit 1
 fi
 
-user_id="$1"
-[ "$user_id" ] || { echo 'Missing argument user_id. Exiting...'; exit 1; }
+user_id=$1
+[ "$user_id" ] || { >&2 echo 'Missing argument user_id. Exiting...'; exit 1; }
 
 if ! [ "$REFRESH_TOKEN" ]; then
-	redirect_uri="http://$(dig +short myip.opendns.com @resolver1.opendns.com)/"
-	echo "To obtain refresh token, port forward port 80 and open:
+	redirect_uri=http://$(dig +short myip.opendns.com @resolver1.opendns.com)/
+	>&2 echo "To obtain refresh token, port forward port 80 and open:
 
     https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=code&redirect_uri=$redirect_uri&scope=playlist-modify-public
 
 Starting netcat for monitoring redirect URI callbacks after authentication success or failure:"
 	trap : INT; sudo nc -kl 80; trap - INT
 	printf 'Enter authorization code: '; read -r code
-	curl -X POST https://accounts.spotify.com/api/token \
+	curl https://accounts.spotify.com/api/token \
 		 -H "Authorization: Basic $(printf "%s:%s" "$CLIENT_ID" "$CLIENT_SECRET" | base64 --wrap=0)" \
 		 -d grant_type=authorization_code -d code="$code" -d redirect_uri="$redirect_uri"
 	exit 1
 fi
 
-powerset() { [ $# -gt 0 ] && { shift; powerset "$@"; } \
-				 | while read -r a; do
-				 echo "$1" "$a"
-				 echo "$a"
-			 done \
-				 || echo; }
+powerset() {
+	[ $# -gt 0 ] && { shift; powerset "$@"; } |
+		while read -r a; do
+			echo "$1" "$a"
+			echo "$a"
+		done || echo
+}
 
 # Gets all Spotify track URIs of a playlist separated by newlines:
 #
@@ -38,14 +39,13 @@ powerset() { [ $# -gt 0 ] && { shift; powerset "$@"; } \
 # where playlist is the Spotify ID for the playlist.
 playlist_tracks() {
 	# API endpoint for next page of items
-	next="https://api.spotify.com/v1/playlists/$1/tracks"
+	next=https://api.spotify.com/v1/playlists/$1/tracks
 	while
-		items=$(curl -X GET "$next" \
-					 -H "Authorization: Bearer $access_token" \
-					 --silent --show-error)
+		items=$(curl --silent --show-error "$next" \
+					 -H "Authorization: Bearer $access_token")
 		echo "$items" | jq --raw-output '.items[] | select(.track) | .track.uri'
 
-		next=$(echo "$items" | jq --raw-output --exit-status '.next')
+		next=$(echo "$items" | jq --raw-output --exit-status .next)
 	do :; done
 }
 
@@ -63,7 +63,7 @@ set_playlist_tracks() {
 			 -H "Authorization: Bearer $access_token" \
 			 --data "$(jq --null-input --compact-output \
 			 --arg tracks "$chunk" '{uris: $tracks | split("\n")}')" \
-			 -H "Content-Type: application/json" \
+			 -H 'Content-Type: application/json' \
 			 --silent --show-error >/dev/null # Ignore snapshot_id result
 		first=false
 	done
@@ -71,45 +71,45 @@ set_playlist_tracks() {
 
 # Enter temporary directory for saving playlist information
 # shellcheck disable=SC2015 # actually want to exit if either mktemp/cd fails
-tmp=$(mktemp -d) && cd "$tmp" \
-		|| { echo 'cd into temporary directory failed. Exiting...'; exit 1; }
+tmp=$(mktemp -d) && cd "$tmp" ||
+		{ echo 'cd into temporary directory failed. Exiting...'; exit 1; }
 
 # Get the access token for the app: Needed to access public content
-access_token=$(curl -X POST https://accounts.spotify.com/api/token \
+access_token=$(curl --silent --show-error \
 	-H "Authorization: Basic $(printf "%s:%s" "$CLIENT_ID" "$CLIENT_SECRET" | base64 --wrap=0)" \
-	-d grant_type=client_credentials \
-	--silent --show-error \
-	| jq --raw-output '.access_token')
+	--data grant_type=client_credentials \
+	https://accounts.spotify.com/api/token |
+	jq --raw-output .access_token)
 
 # Fetch all playlists
-playlists=$(curl -X GET "https://api.spotify.com/v1/users/$user_id/playlists" \
+playlists=$(curl --silent --show-error \
 	-H "Authorization: Bearer $access_token" \
-	--silent --show-error \
-	| jq --raw-output '.items[] | "\(.id) \(.name)"')
+	"https://api.spotify.com/v1/users/$user_id/playlists" |
+	jq --raw-output '.items[] | "\(.id) \(.name)"')
 printf "Mixing these playlists from user %s:\n%s\n\n" "$user_id" "$playlists"
 
 # Fetch all tracks in the playlists
 echo "$playlists" | while read -r id name; do
 	mkdir "$id" # Create directory for the playlist in question
-	echo "$name" > "$id/name" # Store the playlist name in a file
-	playlist_tracks "$id" > "$id/tracks" # Store tracks in other file
+	echo "$name" >"$id/name" # Store the playlist name in a file
+	playlist_tracks "$id" >"$id/tracks" # Store tracks in other file
 done
 
 # Request a refreshed access token for setting mixed playlists
-access_token=$(curl -X POST https://accounts.spotify.com/api/token \
+access_token=$(curl --silent --show-error \
 	-H "Authorization: Basic $(printf "%s:%s" "$CLIENT_ID" "$CLIENT_SECRET" | base64 --wrap=0)" \
-	-d grant_type=refresh_token -d refresh_token="$REFRESH_TOKEN" \
-	--silent --show-error \
-	| jq --raw-output '.access_token')
-user_id=$(curl -X GET https://api.spotify.com/v1/me \
+	--data grant_type=refresh_token --data refresh_token="$REFRESH_TOKEN" \
+	https://accounts.spotify.com/api/token |
+	jq --raw-output .access_token)
+user_id=$(curl --silent --show-error \
 	-H "Authorization: Bearer $access_token" \
-	--silent --show-error \
-	| jq --raw-output '.id')
+	https://api.spotify.com/v1/me |
+	jq --raw-output .id)
 # Fetch existing aggregate playlists to avoid creating duplicates
-existing=$(curl -X GET "https://api.spotify.com/v1/users/$user_id/playlists" \
+existing=$(curl --silent --show-error \
 	-H "Authorization: Bearer $access_token" \
-	--silent --show-error \
-	| jq --raw-output '.items[] | "\(.id) \(.name)"')
+	"https://api.spotify.com/v1/users/$user_id/playlists" |
+	jq --raw-output '.items[] | "\(.id) \(.name)"')
 
 # For the powerset of the set of all playlists
 # shellcheck disable=SC2035 # the function does not take any options
@@ -128,17 +128,17 @@ powerset * | while read -r first second third rest; do
 		echo "Found existing $new_id"
 	else
 		# Otherwise: Create a new playlist
-		new_id=$(curl -X POST "https://api.spotify.com/v1/users/$user_id/playlists" \
+		new_id=$(curl --silent --show-error \
 					  -H "Authorization: Bearer $access_token" \
 					  --data "$(echo "$combined_name" | jq --raw-input --null-input \
-					  'input as $name | {name: $name, description: "Nice combined playlist!"}')" \
+					  'input as $name | {name: $name, description: "Combined playlist"}')" \
 					  -H "Content-Type: application/json" \
-					  --silent --show-error \
-					 | jq --raw-output '.id')
+					  "https://api.spotify.com/v1/users/$user_id/playlists" |
+					 jq --raw-output .id)
 	fi
 
 	# Concatenate tracks of all playlists
 	# shellcheck disable=SC2046 # ids do not have any spaces
-	cat -- $(for id in $line; do printf "%s/tracks " "$id"; done) \
-		| set_playlist_tracks "$new_id"
+	cat -- $(for id in $line; do printf '%s/tracks ' "$id"; done) |
+		set_playlist_tracks "$new_id"
 done

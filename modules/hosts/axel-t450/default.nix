@@ -5,7 +5,7 @@
     ./hardware-configuration.nix # Include the results of the hardware scan
   ];
 
-  # Use the systemd-boot EFI boot loader.
+  # Use the systemd-boot EFI boot loader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -14,8 +14,6 @@
 
   graphical.enable = true;
   development.enable = true;
-
-  programs.steam.enable = true;
 
   system.stateVersion = "22.05";
 }

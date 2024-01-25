@@ -10,5 +10,5 @@ xkb_symbols "se-custom" {
 	key <AD11> { [], [ bracketleft, braceleft ] };
 	key <AD12> { [], [ bracketright, braceright ] };
 	key <AC10> { [], [ backslash, asciicircum, asciitilde ] };
-	key <AE12>  { [], [ acute, grave, plusminus, notsign ] };
+	key <AE12> { [], [ acute, grave, plusminus, notsign ] };
 };

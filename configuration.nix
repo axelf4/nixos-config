@@ -85,7 +85,7 @@
   users.users.axel = {
     isNormalUser = true;
     description = "Axel Forsman";
-    extraGroups = [ "wheel" "networkmanager" "video" "wireshark" ];
+    extraGroups = [ "wheel" "networkmanager" "wireshark" ];
     hashedPassword = "$6$SdpjwG9cIGv$yBZ2HQ7gTNkEg54UW2uM7nIZ5ARv0GNNw/IVDLszolz8pz/fVfNJaW2ktIBMcB30HGOkGKn4koMfKocTjMHNE.";
   };
 
