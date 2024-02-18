@@ -15,6 +15,7 @@ in {
       shellcheck
       hunspell
       gfm-preview
+      git-absorb
       texlive-nix-pm
       (callPackage ../packages/pastebin {})
     ];

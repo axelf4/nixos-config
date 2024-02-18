@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Creates "fixup!" commits for the staged hunks to appropriate
+# ancestor changesets.
+
+shopt -s lastpipe nullglob
+
+boundary=$(git rev-parse "${1:-HEAD~5}" 2>/dev/null) || boundary=
+fixupped_commit() {
+	git blame --incremental -L "$2" "$boundary".. -- "$1" | IFS=\  read -r hash _
+	[[ $hash != "$boundary" ]]
+}
+
+tmp=$(mktemp -d) || { echo 'Failed to create temporary directory'; exit 1; }
+# shellcheck disable=SC2064
+trap "rm -rf -- '$tmp'" EXIT
+
+git diff-index --cached --unified=0 --no-prefix --ignore-submodules HEAD \
+	| while :; do
+	while IFS=\  read -r ext_header
+		  case $ext_header in '') break 2 ;; 'index '*) false; esac
+	do :; done
+	IFS=\  read -r _ a; IFS=\  read -r _ b
+	declare -A patched=()
+	while IFS= read -r line &&
+			[[ $line =~ ^@@\ -([0-9]+)(,([0-9]+))?' +'([0-9]+)(,([0-9]+))?\ @@ ]]; do
+		l1=${BASH_REMATCH[1]} p=${BASH_REMATCH[3]:-1}
+		l2=${BASH_REMATCH[4]} n=${BASH_REMATCH[6]:-1}
+		mapfile -n $((p + n)) hunk
+		{ [[ $a == "$b" ]] &&
+			  fixupped_commit "$a" "$((p && l1>1 ? l1-1 : l1)),+$((p+2))"; } ||
+			{ >&2 echo "$b: no parent found for $l2,+$n"; continue; }
+		[[ ${patched[$hash]} ]] || cat << EOF >>"$tmp/$hash"
+--- a/$a
++++ b/$b
+EOF
+		patched[$hash]=1
+		{ echo "$line"; printf '%s' "${hunk[@]}"; } >>"$tmp/$hash"
+	done
+done
+
+for patch in "$tmp"/*; do
+	git read-tree --index-output="$tmp"/index HEAD
+	GIT_INDEX_FILE="$tmp"/index git apply --cached --unidiff-zero "$patch"
+	GIT_INDEX_FILE="$tmp"/index git commit --fixup="${patch#"$tmp"/}"
+done
