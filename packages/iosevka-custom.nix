@@ -1,24 +1,18 @@
 { iosevka }: iosevka.override {
-  set = "custom";
+  set = "Custom";
   privateBuildPlan = ''
-    [buildPlans.iosevka-custom]
+    [buildPlans.IosevkaCustom]
     family = "Iosevka"
     spacing = "fixed"
-    no-cv-ss = true
+    noCvSs = true
+    weights = { Regular = "default.Regular", Bold = "default.Bold" }
+    slopes = { Upright = "default.Upright", Italic = "default.Italic" }
+    widths = { Normal = "default.Normal" }
 
-    [buildPlans.iosevka-custom.variants.design]
+    [buildPlans.IosevkaCustom.variants.design]
     g = "double-storey-open"
     asterisk = "penta-low"
     number-sign = "upright-open"
     at = "compact"
-
-    [buildPlans.iosevka-custom.weights]
-    regular = "default.regular"
-    bold = "default.bold"
-    [buildPlans.iosevka-custom.slopes]
-    upright = "default.upright"
-    italic = "default.italic"
-    [buildPlans.iosevka-custom.widths]
-    normal = "default.normal"
   '';
 }

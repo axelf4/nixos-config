@@ -16,11 +16,11 @@ let
 
   startde = pkgs.runCommandLocal "startde" {} ''
     shopt -s lastpipe
-    find -L ${config.services.xserver.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
+    find -L ${config.services.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
       -type f -name '*.desktop' -printf '%H\0%P\0' |
       while IFS= read -rd ''' dir && IFS= read -rd ''' file; do
       desktopFileId=''${file//'/'/-}
-      [[ $desktopFileId == ${config.services.xserver.displayManager.defaultSession}.desktop ]] || continue
+      [[ $desktopFileId == ${config.services.displayManager.defaultSession}.desktop ]] || continue
       while IFS= read -r line; do # Parse desktop file
         case $line in
           \#* | '[Desktop Entry]') continue ;;
@@ -56,22 +56,22 @@ in {
       pulse.enable = true;
     };
 
-    # Enable the X11 windowing system
     services.xserver = {
       enable = true;
       autoRepeatDelay = 300;
       autoRepeatInterval = 300;
-
-      libinput.touchpad = {
-        naturalScrolling = true;
-        tappingDragLock = false; # Quit dragging immediately after release
-      };
-
-      # Enable the KDE Desktop Environment
-      desktopManager.plasma5.enable = true;
-      displayManager.defaultSession = "plasmawayland";
     };
-    environment.plasma5.excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
+    services.libinput.touchpad = {
+      naturalScrolling = true;
+      tappingDragLock = false; # Quit dragging immediately after release
+    };
+    # Enable the KDE Desktop Environment
+    services.desktopManager.plasma6 = {
+      enable = true;
+      enableQt5Integration = false;
+    };
+    environment.plasma6.excludePackages = with pkgs.kdePackages;
+      [ konsole elisa gwenview kate khelpcenter ];
 
     services.xserver.displayManager.lightdm.enable = false;
     environment.loginShellInit = ''
@@ -96,7 +96,7 @@ in {
     environment.systemPackages = with pkgs; [
       wl-clipboard # System clipboard support in terminal Emacs
       editorDesktopItem
-      (callPackage ../packages/edit-selection {})
+      # (callPackage ../packages/edit-selection {})
 
       alacritty spotify inkscape
     ];
