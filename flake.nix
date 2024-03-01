@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-23.11";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
@@ -13,8 +13,7 @@
           modules = builtins.attrValues self.nixosModules ++ [
             {
               system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
-              nix.registry.nixpkgs.flake = nixpkgs; # Pin nixpkgs flake
-              nix.nixPath = [ "nixpkgs=${nixpkgs}" ]; # Do not lookup channels
+              nix.channel.enable = false;
               networking.hostName = name;
               # Extend nixpkgs with packages from this flake
               nixpkgs.overlays = [ (final: prev: self.packages.${system}) ];

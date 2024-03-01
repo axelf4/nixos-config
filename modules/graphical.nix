@@ -70,10 +70,13 @@ in {
       };
 
       # Enable the KDE Desktop Environment
-      desktopManager.plasma5.enable = true;
-      displayManager.defaultSession = "plasmawayland";
+      desktopManager.plasma6 = {
+        enable = true;
+        enableQt5Integration = false;
+      };
     };
-    environment.plasma5.excludePackages = with pkgs.plasma5Packages; [ konsole oxygen elisa gwenview ];
+    environment.plasma6.excludePackages = with pkgs.kdePackages;
+      [ konsole elisa gwenview kate khelpcenter ];
 
     services.xserver.displayManager.lightdm.enable = false;
     environment.loginShellInit = ''
@@ -97,7 +100,7 @@ in {
     environment.systemPackages = with pkgs; [
       wl-clipboard # System clipboard support in terminal Emacs
       editorDesktopItem
-      (callPackage ../packages/edit-selection {})
+      # (callPackage ../packages/edit-selection {})
 
       alacritty spotify gimp inkscape
     ];
