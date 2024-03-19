@@ -58,7 +58,6 @@ in {
       pulse.enable = true;
     };
 
-    # Enable the X11 windowing system
     services.xserver = {
       enable = true;
       autoRepeatDelay = 300;
@@ -68,12 +67,11 @@ in {
         naturalScrolling = true;
         tappingDragLock = false; # Quit dragging immediately after release
       };
-
-      # Enable the KDE Desktop Environment
-      desktopManager.plasma6 = {
-        enable = true;
-        enableQt5Integration = false;
-      };
+    };
+    # Enable the KDE Desktop Environment
+    services.desktopManager.plasma6 = {
+      enable = true;
+      enableQt5Integration = false;
     };
     environment.plasma6.excludePackages = with pkgs.kdePackages;
       [ konsole elisa gwenview kate khelpcenter ];
