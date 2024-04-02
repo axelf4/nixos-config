@@ -88,9 +88,10 @@ in {
         DisableFirefoxStudies = true;
         DisablePocket = true;
         Preferences = {
-          "browser.compactmode.show" = { Value = true; Status = "default"; };
-          "browser.urlbar.suggest.calculator" = { Value = true; Status = "default"; };
-          "extensions.quarantinedDomains.enabled" = { Value = false; Status = "default"; };
+          "browser.compactmode.show".Value = true;
+          "browser.quitShortcut.disabled".Value = true; # Disable CTRL-Q
+          "browser.urlbar.suggest.calculator".Value = true;
+          "extensions.quarantinedDomains.enabled".Value = false;
         };
       };
     };
