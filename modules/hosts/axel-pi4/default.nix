@@ -1,18 +1,22 @@
 # Raspberry Pi 4 Model B
-{ config, pkgs, nixos-hardware, ... }:
+{ config, pkgs, ... }:
 
 {
-  imports = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
-
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-label/NIXOS_SD";
-      fsType = "ext4";
-      options = [ "noatime" ];
-    };
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/NIXOS_SD";
+    fsType = "ext4";
+    options = [ "noatime" ];
   };
 
-  boot.tmp.useTmpfs = true;
+  boot = {
+    initrd.availableKernelModules = [ "xhci_pci" "usbhid" "usb_storage" ];
+    loader = {
+      grub.enable = false;
+      generic-extlinux-compatible.enable = true;
+    };
 
-  system.stateVersion = "22.05";
+    tmp.useTmpfs = true;
+  };
+
+  system.stateVersion = "23.11";
 }

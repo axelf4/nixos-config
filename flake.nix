@@ -1,10 +1,9 @@
 {
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-23.11";
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = inputs@{ self, nixpkgs, nixos-hardware }: {
+  outputs = inputs@{ self, nixpkgs }: {
     nixosConfigurations = let
       mkHost = system: name: {
         inherit name;
@@ -22,7 +21,6 @@
             ./configuration.nix
             (modules/hosts + "/${name}")
           ];
-          specialArgs = { inherit nixos-hardware; };
         };
       };
     in builtins.listToAttrs [
