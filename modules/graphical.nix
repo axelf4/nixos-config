@@ -45,6 +45,62 @@ let
     done
     >&2 echo 'Desktop entry not found'; exit 1
   '';
+
+  firefox-pwa = pkgs.writeShellScript "run-firefox-pwa" ''
+    #!/bin/sh
+    profile_path=''${XDG_DATA_HOME:-$HOME/.local/share}/firefox-pwa/$1
+    if ! [ -e "$profile_path" ]; then
+      mkdir -p "$profile_path"/chrome
+      >"$profile_path"/user.js echo "
+    user_pref(\"toolkit.legacyUserProfileCustomizations.stylesheets\", true);
+    user_pref(\"browser.tabs.inTitlebar\", 0);
+    user_pref(\"browser.tabs.warnOnClose\", false);
+    user_pref(\"browser.sessionstore.resume_session_once\", false);
+    user_pref(\"browser.sessionstore.resume_from_crash\", false);
+    user_pref(\"browser.contentblocking.category\", \"strict\");
+    user_pref(\"network.cookie.lifetimePolicy\", 0);"
+      >"$profile_path"/chrome/userChrome.css echo "
+    @namespace url(\"http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul\");
+    #nav-bar, #TabsToolbar, #statuspanel { visibility: collapse !important; }"
+    fi
+    url=''${2:?No URL given}
+    exec firefox --class "$1" --name "$1" --profile "$profile_path" "$url"
+  '';
+
+  spotify = pkgs.stdenvNoCC.mkDerivation {
+    name = "spotify";
+    inherit (pkgs.spotify) src;
+    nativeBuildInputs = [ pkgs.squashfsTools pkgs.copyDesktopItems ];
+    dontStrip = true;
+    unpackPhase = ''
+      runHook preUnpack
+      unsquashfs "$src" /usr/share/spotify
+      cd squashfs-root
+      runHook postUnpack
+    '';
+    installPhase = ''
+      runHook preInstall
+      for i in 16 22 24 32 48 64 128 256 512; do
+        ixi=''${i}x$i
+        mkdir -p $out/share/icons/hicolor/$ixi/apps
+        cp usr/share/spotify/icons/spotify-linux-$i.png \
+          $out/share/icons/hicolor/$ixi/apps/spotify-client.png
+      done
+      runHook postInstall
+    '';
+
+    desktopItems = [ (pkgs.makeDesktopItem {
+      name = "spotify";
+      desktopName = "Spotify";
+      genericName = "Music Player";
+      icon = "spotify-client";
+      exec = "${firefox-pwa} spotify https://open.spotify.com";
+      # mimeTypes = ["x-scheme-handler/spotify"];
+      categories = [ "Audio" "Music" "Player" "AudioVideo" ];
+      startupNotify = true;
+      startupWMClass = "spotify";
+    }) ];
+  };
 in {
   options.graphical.enable = lib.mkEnableOption "a graphical environment";
 
@@ -78,7 +134,6 @@ in {
       ! [ "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ] && exec ${startde}
     '';
 
-    services.spotify-inhibit-sleepd.enable = true;
     programs.kdeconnect.enable = true;
     programs.firefox = {
       enable = true;
