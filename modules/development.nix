@@ -9,6 +9,7 @@ in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       gdb rr
+      clang-tools
       rustfmt rust-analyzer
       nodePackages.prettier nodePackages.typescript-language-server
       black
