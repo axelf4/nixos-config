@@ -90,6 +90,7 @@ in {
           "browser.compactmode.show".Value = true;
           "browser.quitShortcut.disabled".Value = true; # Disable CTRL-Q
           "browser.urlbar.suggest.calculator".Value = true;
+          "browser.urlbar.update2.engineAliasRefresh".Value = true; # Allow adding search engines
           "extensions.quarantinedDomains.enabled".Value = false;
         };
       };
