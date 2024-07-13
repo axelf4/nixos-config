@@ -8,6 +8,8 @@ in {
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
+      config.boot.kernelPackages.perf
+
       gdb rr
       clang-tools
       rustfmt rust-analyzer
