@@ -15,6 +15,7 @@
     "acpi_osi=" # Fix brightness keys
   ];
 
+  hardware.nvidia.open = false;
   services.xserver.videoDrivers = [ "nvidia" ];
 
   graphical.enable = true;
