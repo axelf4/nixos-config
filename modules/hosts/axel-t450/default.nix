@@ -10,7 +10,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Hardware video acceleration via VA-API
-  hardware.opengl.extraPackages = with pkgs; [ intel-media-driver ];
+  hardware.graphics.extraPackages = with pkgs; [ intel-media-driver ];
 
   graphical.enable = true;
   development.enable = true;

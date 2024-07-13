@@ -35,7 +35,7 @@ let
           esac
         fi
       done <"$dir/$file"
-      cat << EOF >$out
+      cat <<EOF >$out
     #!/bin/sh
     echo 'Starting $name...'
     exec ''${exec[@]@Q}

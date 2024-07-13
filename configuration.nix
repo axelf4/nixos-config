@@ -9,9 +9,8 @@
   boot.loader.systemd-boot.editor = false;
   hardware.bluetooth.enable = true;
   location.provider = "geoclue2";
+  networking.nftables.enable = true;
   networking.networkmanager.enable = true;
-  # Make strongSwan aware of NetworkManager config (see NixOS/nixpkgs#64965)
-  environment.etc."ipsec.secrets".text = "include ipsec.d/ipsec.nm-l2tp.secrets";
   systemd.targets.network-online.wantedBy = lib.mkForce []; # See NixOS/nixpkgs@0d85bf0
 
   # Select internationalisation properties
@@ -44,13 +43,12 @@
   programs.nano.enable = false;
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    emacs29-nox
+    emacs30-nox
     tmux curl git ripgrep
     zip unzip
     rsync strace
 
     (callPackage packages/spotify-mix-playlists {})
-    (callPackage packages/open-csb-door {})
   ];
   environment.variables.EDITOR = "${pkgs.ed}/bin/ed";
   environment.localBinInPath = true; # Prepend ~/.local/bin to $PATH
@@ -76,6 +74,7 @@
   # Enable the OpenSSH daemon
   services.openssh = {
     enable = true;
+    authorizedKeysInHomedir = true;
     settings.PasswordAuthentication = false;
   };
 

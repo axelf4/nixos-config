@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.05";
+    nixpkgs.url = "nixpkgs/nixos-24.11";
   };
 
   outputs = inputs@{ self, nixpkgs }: {
@@ -13,7 +13,6 @@
             ({ config, ... }: {
               system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
               nix.channel.enable = false;
-              nix.settings.nix-path = config.nix.nixPath; # NixOS/nix#9574
               networking.hostName = name;
               # Extend nixpkgs with packages from this flake
               nixpkgs.overlays = [ (final: prev: self.packages.${system}) ];
