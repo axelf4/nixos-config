@@ -40,7 +40,6 @@
       gfm-preview = pkgs.callPackage packages/gfm-preview {};
       git-absorb = pkgs.callPackage packages/git-absorb {};
       texlive-nix-pm = pkgs.callPackage packages/texlive-nix-pm {};
-      conan = pkgs.callPackage packages/conan.nix {};
     });
   };
 }
