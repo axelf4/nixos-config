@@ -104,7 +104,7 @@ gint main(gint argc, gchar *argv[]) {
 	GDBusConnection *session;
 	if (!(session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error))) {
 		fprintf(stderr, "g_bus_get_sync error: %s\n", error->message);
-		return 1;
+		return EXIT_FAILURE;
 	}
 	GDBusProxy *inhibit_proxy;
 	if (!(inhibit_proxy = g_dbus_proxy_new_sync(
@@ -114,7 +114,7 @@ gint main(gint argc, gchar *argv[]) {
 			  "org.freedesktop.portal.Inhibit",
 			  NULL, &error))) {
 		fprintf(stderr, "g_dbus_proxy_new_sync error: %s\n", error->message);
-		return 1;
+		return EXIT_FAILURE;
 	}
 	struct State st = { .session = session, .inhibit_proxy = inhibit_proxy };
 
