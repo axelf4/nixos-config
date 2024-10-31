@@ -30,7 +30,7 @@
     ];
 
     nixosModules = {
-      spotify-inhibit-sleepd = import modules/spotify-inhibit-sleepd;
+      spotify-inhibit-sleepd = modules/spotify-inhibit-sleepd;
     };
 
     packages = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (system: let
