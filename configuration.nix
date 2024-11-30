@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   imports = [
@@ -12,6 +12,7 @@
   networking.networkmanager.enable = true;
   # Make strongSwan aware of NetworkManager config (see NixOS/nixpkgs#64965)
   environment.etc."ipsec.secrets".text = "include ipsec.d/ipsec.nm-l2tp.secrets";
+  systemd.targets.network-online.wantedBy = lib.mkForce []; # See NixOS/nixpkgs@0d85bf0
 
   # Select internationalisation properties
   i18n = {
