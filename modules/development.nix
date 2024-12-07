@@ -11,10 +11,10 @@ in {
       config.boot.kernelPackages.perf
 
       gdb rr
-      clang-tools
+      clang-tools # Provides the clangd language server
       rustfmt rust-analyzer
-      nodePackages.prettier nodePackages.typescript-language-server
-      black
+      nodePackages.prettier typescript-language-server
+      black pyright
       shellcheck
       hunspell
       gfm-preview
