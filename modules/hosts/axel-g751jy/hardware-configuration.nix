@@ -36,12 +36,12 @@
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/E07D-8A99";
       fsType = "vfat";
+      options = [ "umask=077" ];
     };
 
   swapDevices =
     [ { device = "/dev/disk/by-uuid/41e1d30e-d6a3-4971-917e-884e761e18f2"; }
     ];
 
-  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
