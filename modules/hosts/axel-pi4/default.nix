@@ -1,5 +1,5 @@
 # Raspberry Pi 4 Model B
-{ config, pkgs, ... }:
+{ lib, ... }:
 
 {
   fileSystems."/" = {
@@ -18,5 +18,6 @@
     tmp.useTmpfs = true;
   };
 
+  nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
   system.stateVersion = "23.11";
 }
