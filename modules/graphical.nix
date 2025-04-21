@@ -49,12 +49,7 @@ in {
   options.graphical.enable = lib.mkEnableOption "a graphical environment";
 
   config = lib.mkIf cfg.enable {
-    security.rtkit.enable = true;
-    # Enable PipeWire for audio
-    services.pipewire = {
-      enable = true;
-      pulse.enable = true;
-    };
+    security.rtkit.enable = true; # For PipeWire
 
     services.xserver = {
       enable = true;

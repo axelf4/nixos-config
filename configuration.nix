@@ -11,7 +11,6 @@
   location.provider = "geoclue2";
   networking.nftables.enable = true;
   networking.networkmanager.enable = true;
-  systemd.targets.network-online.wantedBy = lib.mkForce []; # See NixOS/nixpkgs@0d85bf0
 
   # Select internationalisation properties
   i18n = {
@@ -20,9 +19,9 @@
   };
   console.useXkbConfig = true;
   services.xserver.xkb = {
-    layout = "se-custom";
+    layout = "se-custom,se";
     extraLayouts.se-custom = {
-      description = "SE layout with customizations";
+      description = "Swedish with customizations";
       languages = [ "swe" "eng" ];
       symbolsFile = xkb/symbols/se-custom;
     };
@@ -43,7 +42,7 @@
   programs.nano.enable = false;
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    emacs30-nox
+    emacs-nox
     tmux curl git ripgrep
     zip unzip
     rsync strace
