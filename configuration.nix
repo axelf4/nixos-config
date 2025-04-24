@@ -48,10 +48,14 @@
     zip unzip
     rsync strace
 
+    (writeShellScriptBin "sudo" ''exec run0 "$@"'')
+
     (callPackage packages/spotify-mix-playlists {})
   ];
   environment.variables.EDITOR = "${pkgs.ed}/bin/ed";
   environment.localBinInPath = true; # Prepend ~/.local/bin to $PATH
+
+  security.sudo.enable = false; # Disable sudo in favor of run0
 
   programs.gnupg.agent = {
     enable = true;
