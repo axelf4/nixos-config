@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
-{
+let
+  run0-sudo-shim = pkgs.writeShellScriptBin "sudo" ''exec run0 "$@"'';
+in {
   imports = [
     modules/graphical.nix
     modules/development.nix
@@ -48,10 +50,14 @@
     zip unzip
     rsync strace
 
+    run0-sudo-shim
     (callPackage packages/spotify-mix-playlists {})
   ];
   environment.variables.EDITOR = "${pkgs.ed}/bin/ed";
   environment.localBinInPath = true; # Prepend ~/.local/bin to $PATH
+
+  security.polkit.enable = true;
+  security.sudo.enable = false; # Disable sudo in favor of run0
 
   programs.gnupg.agent = {
     enable = true;
