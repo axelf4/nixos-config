@@ -104,10 +104,10 @@ in {
       editorDesktopItem
       backlightctl pw-target
 
-      alacritty spotify inkscape
+      foot spotify inkscape
     ];
     environment.variables = {
-      TERMINAL = "alacritty";
+      TERMINAL = "foot";
       MOZ_USE_XINPUT2 = "1";
     };
 
