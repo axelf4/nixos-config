@@ -34,7 +34,7 @@
   # in software.
   boot.kernelParams = [ "vt.cur_default=0x000071" ];
   # Disable blinking entirely in the the Linux Framebuffer Console,
-  # since e.g. text editors override the default set above.
+  # since, e.g., text editors override the default set above.
   systemd.tmpfiles.rules = [ "w /sys/class/graphics/fbcon/cursor_blink - - - - 0" ];
 
   nixpkgs.config.allowUnfree = true;
@@ -70,7 +70,6 @@
       publicKeyFile = pubkeys/chalmers_ssh_host_ed25519_key.pub;
     };
   };
-  # Enable the OpenSSH daemon
   services.openssh = {
     enable = true;
     authorizedKeysInHomedir = true;
@@ -85,7 +84,7 @@
     isNormalUser = true;
     description = "Axel Forsman";
     extraGroups = [ "wheel" "networkmanager" "wireshark" ];
-    hashedPassword = "$6$SdpjwG9cIGv$yBZ2HQ7gTNkEg54UW2uM7nIZ5ARv0GNNw/IVDLszolz8pz/fVfNJaW2ktIBMcB30HGOkGKn4koMfKocTjMHNE.";
+    hashedPassword = "$y$j9T$Cim4CKzHtQoolfLgJex6a0$IhcEdatPB9nVf8PjkD/duuQdvHB08aPsfcRXtzcsqa5";
   };
 
   nix.settings = {
