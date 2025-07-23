@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Creates "fixup!" commits for the staged hunks to appropriate
-# ancestor changesets.
+# Creates "fixup!" commits to appropriate ancestor changesets for the
+# staged hunks.
 
 shopt -s lastpipe nullglob
 
@@ -10,7 +10,7 @@ fixupped_commit() {
 	[[ $hash != "$boundary" ]]
 }
 
-tmp=$(mktemp -d) || { >&2 echo 'Failed to create temporary directory'; exit 1; }
+tmp=$(mktemp -d) || { >&2 echo 'mktemp failed'; exit 1; }
 trap 'rm -rf -- "$tmp"' EXIT
 
 git diff-index --cached --unified=0 --no-prefix --ignore-submodules HEAD | while :; do
@@ -24,15 +24,17 @@ git diff-index --cached --unified=0 --no-prefix --ignore-submodules HEAD | while
 		l1=${BASH_REMATCH[1]} p=${BASH_REMATCH[3]:-1}
 		l2=${BASH_REMATCH[4]} n=${BASH_REMATCH[6]:-1}
 		mapfile -n $((p + n)) hunk
-		{ [[ $a == "$b" ]] &&
-			  fixupped_commit "$a" "$((p && l1>1 ? l1-1 : l1)),+$((p+2))"; } ||
-			{ >&2 echo "$b: no parent found for $l2,+$n"; continue; }
-		[[ ${patched[$hash]} ]] || cat << EOF >>"$tmp/$hash"
+		# shellcheck disable=SC2015
+		[[ $a == "$b" ]] &&
+			fixupped_commit "$a" "$((p && l1>1 ? l1-1 : l1)),+$((p+2))" ||
+				{ >&2 echo "$b: no parent found for $l2,+$n"; continue; }
+		[[ -v patched[$hash] ]] || cat <<EOF >>"$tmp/$hash"
 --- a/$a
 +++ b/$b
 EOF
 		patched[$hash]=1
-		printf %s\\n%s "$line" "${hunk[@]}" >>"$tmp/$hash"
+		printf %s "$line
+" "${hunk[@]}" >>"$tmp/$hash"
 	done
 done
 
