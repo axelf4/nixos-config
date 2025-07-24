@@ -91,7 +91,7 @@ in {
   users.users.axel = {
     isNormalUser = true;
     description = "Axel Forsman";
-    extraGroups = [ "wheel" "networkmanager" "wireshark" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "wireshark" ];
     hashedPassword = "$y$j9T$Cim4CKzHtQoolfLgJex6a0$IhcEdatPB9nVf8PjkD/duuQdvHB08aPsfcRXtzcsqa5";
   };
 
