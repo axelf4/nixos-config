@@ -1,0 +1,29 @@
+#!/bin/sh
+# Adjusts screen brightness to relative or absolute percentage point.
+
+inc=$1
+[ "$inc" -eq "$inc" ] 2>/dev/null || { >&2 echo "invalid increment"; exit 1; }
+
+min=1
+max=0
+# Find the best (greatest maximum) controller
+for f in /sys/class/backlight/*; do
+	x=$(cat "$f"/max_brightness)
+	[ "$x" -le "$max" ] && continue
+	file=$f
+	max=$x
+done
+[ "$f" ] || { >&2 echo 'no controller found'; exit 1; }
+
+k=$(((inc * max + 50) / 100))
+case $inc in
+	[+-]*) # Relative
+		i=$(cat "$file"/brightness)
+		if [ "$k" -eq 0 ]; then
+			k=$((inc > 0 ? 1 : inc < 0 ? -1 : 0))
+		fi
+		k=$((i += k, i >= max ? max : i < min ? min : i))
+		;;
+	*) ;; # Absolute
+esac
+>"$file"/brightness echo "$k"
