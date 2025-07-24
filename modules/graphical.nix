@@ -45,10 +45,17 @@ let
     done
     >&2 echo 'Desktop entry not found'; exit 1
   '';
+
+  backlightctl = pkgs.callPackage ../packages/backlightctl {};
 in {
   options.graphical.enable = lib.mkEnableOption "a graphical environment";
 
   config = lib.mkIf cfg.enable {
+    # Allow video group to control screen brightness
+    services.udev.extraRules = ''
+      ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chgrp video $sys$devpath/brightness", RUN+="${pkgs.coreutils}/bin/chmod g+w $sys$devpath/brightness"
+    '';
+
     security.rtkit.enable = true; # For PipeWire
 
     services.xserver = {
@@ -94,6 +101,7 @@ in {
     environment.systemPackages = with pkgs; [
       wl-clipboard # System clipboard support in terminal Emacs
       editorDesktopItem
+      backlightctl
       # (callPackage ../packages/edit-selection {})
 
       foot spotify inkscape
