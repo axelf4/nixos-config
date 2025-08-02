@@ -47,6 +47,7 @@ let
   '';
 
   backlightctl = pkgs.callPackage ../packages/backlightctl {};
+  pw-target = pkgs.callPackage ../packages/pw-target {};
 in {
   options.graphical.enable = lib.mkEnableOption "a graphical environment";
 
@@ -101,8 +102,7 @@ in {
     environment.systemPackages = with pkgs; [
       wl-clipboard # System clipboard support in terminal Emacs
       editorDesktopItem
-      backlightctl
-      # (callPackage ../packages/edit-selection {})
+      backlightctl pw-target
 
       foot spotify inkscape
       melonDS

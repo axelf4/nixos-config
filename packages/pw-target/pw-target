@@ -1,0 +1,24 @@
+#!/bin/sh
+# Sets the PipeWire source target to exclusively be the given sink.
+
+set -o pipefail
+
+o=${1:?missing output node id}
+i=${2:?missing input node id}
+
+pw-dump |
+	jq --raw-output --argjson input "$i" --argjson output "$o" \
+	   '(.[] | first(select(.id == $input) | .info.props."object.serial")) // ("bad sink
+" | halt_error),
+(.[] | select(.type == "PipeWire:Interface:Link"
+	and .info."output-node-id" == $output
+	and .info."input-node-id" != $input) | .id)' | {
+	read -r serial
+	echo "sink serial: $serial"
+
+	# Unlink existing output port connections
+	xargs --no-run-if-empty -n1 pw-link --disconnect
+
+	# Set where the source node should link to
+	pw-metadata "$o" target.object "$serial"
+}
