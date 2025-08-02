@@ -28,14 +28,20 @@ static void inhibit(struct State *st) {
 	g_variant_builder_init(&options, G_VARIANT_TYPE_VARDICT);
 	g_variant_builder_add(&options, "{sv}", "reason", g_variant_new_string("Spotify is playing audio"));
 	GVariant *res;
-	if (!(res = g_dbus_proxy_call_sync(
+	GError *err = NULL;
+	if ((res = g_dbus_proxy_call_sync(
 				st->inhibit_proxy,
 				"Inhibit",
-				g_variant_new("(su@a{sv})", /* window */ "", INHIBIT_SUSPEND,
+				// FIXME: xdg-desktop-portal-gtk does not support INHIBIT_SUSPEND
+				g_variant_new("(su@a{sv})", /* window */ "", INHIBIT_IDLE,
 					g_variant_builder_end(&options)),
-				G_DBUS_CALL_FLAGS_NONE, G_MAXINT, NULL, NULL))) return;
-	g_variant_get(res, "(o)", &st->inhibit_handle);
-	g_variant_unref(res);
+				G_DBUS_CALL_FLAGS_NONE, G_MAXINT, NULL, &err))) {
+		g_variant_get(res, "(o)", &st->inhibit_handle);
+		g_variant_unref(res);
+	} else {
+		fprintf(stderr, "g_dbus_proxy_call_sync failed: %s\n", err->message);
+		g_error_free(err);
+	}
 }
 
 static void uninhibit(struct State *st) {
@@ -100,10 +106,10 @@ static void on_name_owner_changed(GDBusConnection *c,
 }
 
 gint main(gint argc, gchar *argv[]) {
-	GError *error = NULL;
+	GError *err = NULL;
 	GDBusConnection *session;
-	if (!(session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error))) {
-		fprintf(stderr, "g_bus_get_sync error: %s\n", error->message);
+	if (!(session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err))) {
+		fprintf(stderr, "g_bus_get_sync failed: %s\n", err->message);
 		return EXIT_FAILURE;
 	}
 	GDBusProxy *inhibit_proxy;
@@ -112,8 +118,8 @@ gint main(gint argc, gchar *argv[]) {
 			  "org.freedesktop.portal.Desktop",
 			  "/org/freedesktop/portal/desktop",
 			  "org.freedesktop.portal.Inhibit",
-			  NULL, &error))) {
-		fprintf(stderr, "g_dbus_proxy_new_sync error: %s\n", error->message);
+			  NULL, &err))) {
+		fprintf(stderr, "g_dbus_proxy_new_sync failed: %s\n", err->message);
 		return EXIT_FAILURE;
 	}
 	struct State st = { .session = session, .inhibit_proxy = inhibit_proxy };

@@ -16,6 +16,7 @@ in {
       black pyright
       shellcheck
       nixfmt-rfc-style nixd
+      kdePackages.qtdeclarative # Provides qmlformat and qmlls
       hunspell
       gfm-preview
       git-absorb
