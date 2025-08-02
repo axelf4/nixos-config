@@ -1,7 +1,7 @@
-{ lib, runCommandLocal, makeWrapper, curl, jq }:
+{ lib, runCommandLocal, makeWrapper, curl, jq, libsecret }:
 runCommandLocal "open-csb-door"
   { nativeBuildInputs = [ makeWrapper ]; }
   ''
   makeWrapper ${./open-csb-door} $out/bin/open-csb-door \
-    --prefix PATH : ${lib.makeBinPath [ curl jq ]}
+    --prefix PATH : ${lib.makeBinPath [ curl jq libsecret ]}
   ''

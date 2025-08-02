@@ -51,9 +51,7 @@ in {
     tmux curl git ripgrep
     zip unzip
     rsync strace
-
     run0-sudo-shim
-    (callPackage packages/spotify-mix-playlists {})
   ];
   environment.variables.EDITOR = "${pkgs.ed}/bin/ed";
   environment.localBinInPath = true; # Prepend ~/.local/bin to $PATH
@@ -81,7 +79,6 @@ in {
   };
   services.openssh = {
     enable = true;
-    startWhenNeeded = true;
     authorizedKeysInHomedir = true;
     settings.PasswordAuthentication = false;
   };

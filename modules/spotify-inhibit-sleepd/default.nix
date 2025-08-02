@@ -24,6 +24,7 @@ in {
       serviceConfig = {
         Type = "exec";
         ExecStart = "${package}/bin/spotify-inhibit-sleepd";
+        Slice = "background.slice";
         Restart = "on-failure";
       };
     };
