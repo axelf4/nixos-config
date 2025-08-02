@@ -38,6 +38,7 @@ let
       cat <<EOF >$out
     #!/bin/sh
     echo 'Starting $name...'
+    unset XDG_VTNR
     exec ''${exec[@]@Q}
     EOF
       chmod +x $out
@@ -48,6 +49,17 @@ let
 
   backlightctl = pkgs.callPackage ../packages/backlightctl {};
   pw-target = pkgs.callPackage ../packages/pw-target {};
+  quickshellDesktopItem = pkgs.makeDesktopItem {
+    name = "org.quickshell";
+    destination = "/etc/xdg/autostart";
+    desktopName = "Quickshell";
+    noDisplay = true;
+    icon = "org.quickshell";
+    exec = lib.getExe pkgs.quickshell;
+  };
+  polkit-kde-agent-1' = pkgs.runCommandLocal "polkit-kde-agent-1-wrapped" {} ''
+    install -Dm644 {${pkgs.kdePackages.polkit-kde-agent-1}/share,$out/lib}/systemd/user/plasma-polkit-agent.service
+  '';
 in {
   options.graphical.enable = lib.mkEnableOption "a graphical environment";
 
@@ -57,32 +69,26 @@ in {
       ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chgrp video $sys$devpath/brightness", RUN+="${pkgs.coreutils}/bin/chmod g+w $sys$devpath/brightness"
     '';
 
+    services.speechd.enable = false;
     security.rtkit.enable = true; # For PipeWire
+    services.upower.enable = config.powerManagement.enable;
 
+    environment.loginShellInit = ''
+      ! [ "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ] && exec ${startde}
+    '';
     services.xserver = {
       enable = true;
       autoRepeatDelay = 300;
       autoRepeatInterval = 300;
+      excludePackages = [ pkgs.xterm ];
+      displayManager.lightdm.enable = false;
     };
     services.libinput.touchpad = {
       naturalScrolling = true;
       tappingDragLock = false; # Quit dragging immediately after release
     };
-    # Enable the KDE Desktop Environment
-    services.desktopManager.plasma6 = {
-      enable = true;
-      enableQt5Integration = false;
-    };
-    environment.plasma6.excludePackages = with pkgs.kdePackages;
-      [ konsole elisa gwenview kate khelpcenter ];
-
-    services.xserver.displayManager.lightdm.enable = false;
-    environment.loginShellInit = ''
-      ! [ "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ] && exec ${startde}
-    '';
 
     services.spotify-inhibit-sleepd.enable = true;
-    programs.kdeconnect.enable = true;
     programs.firefox = {
       enable = true;
       policies = {
@@ -99,15 +105,21 @@ in {
         };
       };
     };
+    programs.kdeconnect = { enable = true; package = pkgs.kdePackages.kdeconnect-kde; };
     environment.systemPackages = with pkgs; [
       wl-clipboard # System clipboard support in terminal Emacs
+      libsecret # CLI (secret-tool) for the freedesktop.org Secret Service API
       editorDesktopItem
       backlightctl pw-target
 
-      foot spotify inkscape
+      kdePackages.breeze
+      quickshell quickshellDesktopItem
+
+      foot nautilus spotify inkscape
     ];
     environment.variables = {
       TERMINAL = "foot";
+      NIXOS_OZONE_WL = "1"; # Wayland Ozone platform for Electron
       MOZ_USE_XINPUT2 = "1";
     };
 
@@ -116,11 +128,62 @@ in {
       "text/plain" = "editor.desktop";
       "application/pdf" = "firefox.desktop";
     };
+    xdg.icons.fallbackCursorThemes = [ "breeze_cursors" ];
 
     fonts = {
-      packages = [ pkgs.iosevka-custom ];
-      fontconfig.defaultFonts.monospace = [ "Iosevka" ];
+      packages = with pkgs; [ noto-fonts iosevka-custom ];
+      enableDefaultPackages = false;
+      fontconfig.defaultFonts = {
+        sansSerif = [ "Noto Sans" ];
+        serif = [ "Noto Serif" ];
+        monospace = [ "Iosevka" "Noto Sans Mono" ];
+      };
       fontconfig.subpixel.rgba = "rgb";
+    };
+
+    programs.niri.enable = true;
+    services.displayManager.defaultSession = "niri";
+    # Delay until XDG_CURRENT_DESKTOP is imported into systemd user environment
+    systemd.user.services.xdg-desktop-portal.after = [ "niri.service" ];
+
+    systemd.packages = [ polkit-kde-agent-1' ];
+    systemd.user.services.plasma-polkit-agent =
+      { after = [ "graphical-session.target" ]; wantedBy = [ "niri.service" ]; };
+    systemd.user.services.gnome-keyring = {
+      description = "Secret Storage Service";
+      documentation = [ "man:gnome-keyring-daem(1)" ];
+      partOf = [ "graphical-session-pre.target" ];
+      wantedBy = [ "graphical-session-pre.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --start --foreground --components=pkcs11,secrets";
+        Slice = "background.slice";
+        Restart = "on-abort";
+      };
+    };
+
+    services.logind.extraConfig = ''
+      IdleAction=lock
+      IdleActionSec=0
+    '';
+    systemd.user.services.swayidle = {
+      description = "Idle manager";
+      documentation = [ "man:swayidle(1)" ];
+      after = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      requisite = [ "graphical-session.target" ];
+      wantedBy = [ "niri.service" ];
+      serviceConfig = {
+        # TODO Dim screen before locking/suspending
+        ExecStart = ''
+          ${lib.getExe pkgs.swayidle} -w idlehint 300 \
+            lock "${lib.getExe pkgs.quickshell} ipc call lockscreen lock" \
+            unlock "${lib.getExe pkgs.quickshell} ipc call lockscreen unlock" \
+            before-sleep "loginctl lock-session" \
+            timeout 600 "systemctl suspend"
+        '';
+        Slice = "session.slice";
+        Restart = "on-failure";
+      };
     };
   };
 }
