@@ -11,6 +11,7 @@
   location.provider = "geoclue2";
   networking.nftables.enable = true;
   networking.networkmanager.enable = true;
+  networking.modemmanager.enable = false;
 
   # Select internationalisation properties
   i18n = {
