@@ -143,6 +143,10 @@ in {
 
     programs.niri.enable = true;
     services.displayManager.defaultSession = "niri";
+    environment.etc."niri/config.kdl".source = niri/config.kdl;
+    system.checks = [ (pkgs.runCommandLocal "niri-validate" {} ''
+      ${lib.getExe pkgs.niri} validate --config ${niri/config.kdl}
+    '') ];
     # Delay until XDG_CURRENT_DESKTOP is imported into systemd user environment
     systemd.user.services.xdg-desktop-portal.after = [ "niri.service" ];
 
