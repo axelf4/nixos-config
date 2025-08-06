@@ -7,6 +7,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    programs.msmtp.enable = true;
     environment.systemPackages = with pkgs; [
       config.boot.kernelPackages.perf
 
@@ -21,6 +22,8 @@ in {
       git-absorb
       texlive-nix-pm
       (callPackage ../packages/pastebin {})
+
+      isync notmuch emacsPackages.notmuch
     ];
     environment.variables.DICPATH = lib.makeSearchPath "share/hunspell"
       (with pkgs.hunspellDicts; [ en-us sv-se ]);
