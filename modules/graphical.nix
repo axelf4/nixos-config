@@ -99,7 +99,6 @@ in {
       foot spotify inkscape
     ];
     environment.variables = {
-      TERMINAL = "foot";
       MOZ_USE_XINPUT2 = "1";
     };
 
@@ -108,6 +107,7 @@ in {
       "text/plain" = "editor.desktop";
       "application/pdf" = "firefox.desktop";
     };
+    xdg.terminal-exec = { enable = true; settings.default = [ "foot.desktop" ]; };
 
     fonts = {
       packages = [ pkgs.iosevka-custom ];
