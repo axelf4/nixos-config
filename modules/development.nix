@@ -17,6 +17,7 @@ in {
       nodePackages.prettier typescript-language-server
       black pyright
       shellcheck
+      nixfmt-rfc-style nixd
       hunspell
       gfm-preview
       git-absorb
