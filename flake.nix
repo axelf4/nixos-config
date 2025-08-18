@@ -4,36 +4,36 @@
   };
 
   outputs = inputs@{ self, nixpkgs }: let
-    packages = pkgs: {
-      iosevka-custom = pkgs.callPackage packages/iosevka-custom.nix {};
-      gfm-preview = pkgs.callPackage packages/gfm-preview {};
-      git-absorb = pkgs.callPackage packages/git-absorb {};
-      texlive-nix-pm = pkgs.callPackage packages/texlive-nix-pm {};
-    };
-
-    mkHost = name: nixpkgs.lib.nixosSystem {
+    inherit (nixpkgs) lib;
+    mkHost = name: lib.nixosSystem {
+      specialArgs = { inherit inputs; };
       modules = builtins.attrValues self.nixosModules ++ [
-        ({ config, ... }: {
-          system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
+        {
+          system.configurationRevision = lib.mkIf (self ? rev) self.rev;
           nix.channel.enable = false;
           networking.hostName = name;
           # Extend nixpkgs with packages from this flake
-          nixpkgs.config.packageOverrides = packages;
-        })
+          nixpkgs.config.packageOverrides = pkgs: self.packages.${pkgs.stdenv.system} or {};
+        }
         ./configuration.nix
-        (modules/hosts + "/${name}")
+        modules/hosts/${name}
       ];
     };
+    hosts = ["axel-t450" "axel-g751jy" "axel-pi4" ];
   in {
-    nixosConfigurations = nixpkgs.lib.genAttrs
-      ["axel-t450" "axel-g751jy" "axel-pi4" ]
-      mkHost;
+    nixosConfigurations = lib.genAttrs hosts mkHost;
 
     nixosModules = {
       spotify-inhibit-sleepd = modules/spotify-inhibit-sleepd;
     };
 
-    packages = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ]
-      (system: packages nixpkgs.legacyPackages.${system});
+    packages = lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (system:
+      let pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        iosevka-custom = pkgs.callPackage packages/iosevka-custom.nix {};
+        gfm-preview = pkgs.callPackage packages/gfm-preview {};
+        git-absorb = pkgs.callPackage packages/git-absorb {};
+        texlive-nix-pm = pkgs.callPackage packages/texlive-nix-pm {};
+      });
   };
 }
