@@ -19,7 +19,7 @@
         modules/hosts/${name}
       ];
     };
-    hosts = ["axel-t450" "axel-g751jy" "axel-pi4" ];
+    hosts = builtins.attrNames (builtins.readDir modules/hosts);
   in {
     nixosConfigurations = lib.genAttrs hosts mkHost;
 
