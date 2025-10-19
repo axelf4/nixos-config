@@ -11,6 +11,7 @@ in {
   boot.loader.systemd-boot.editor = false;
   hardware.bluetooth.enable = true;
   location.provider = "geoclue2";
+  networking.useNetworkd = true;
   networking.nftables.enable = true;
   networking.networkmanager.enable = true;
   networking.modemmanager.enable = false;
