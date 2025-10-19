@@ -1,5 +1,7 @@
 # Raspberry Pi 4 Model B
 {
+  imports = [ ./router.nix ];
+
   fileSystems."/" = {
     device = "/dev/disk/by-label/NIXOS_SD";
     fsType = "ext4";
