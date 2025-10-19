@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   imports = [
@@ -76,8 +76,6 @@
     authorizedKeysInHomedir = true;
     settings.PasswordAuthentication = false;
   };
-
-  services.printing.enable = true; # Enable CUPS to print documents
 
   users.mutableUsers = false;
   # Define a user account
