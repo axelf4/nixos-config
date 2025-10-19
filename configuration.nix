@@ -73,6 +73,7 @@
   };
   services.openssh = {
     enable = true;
+    startWhenNeeded = true;
     authorizedKeysInHomedir = true;
     settings.PasswordAuthentication = false;
   };
