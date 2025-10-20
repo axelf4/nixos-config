@@ -1,6 +1,4 @@
 # Raspberry Pi 4 Model B
-{ lib, ... }:
-
 {
   fileSystems."/" = {
     device = "/dev/disk/by-label/NIXOS_SD";
@@ -17,7 +15,8 @@
 
     tmp.useTmpfs = true;
   };
+  hardware.enableRedistributableFirmware = true;
 
-  nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
+  nixpkgs.hostPlatform = "aarch64-linux";
   system.stateVersion = "23.11";
 }
