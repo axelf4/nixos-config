@@ -1,9 +1,13 @@
 {
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-25.11";
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/quickshell/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs }: let
+  outputs = inputs@{ self, nixpkgs, quickshell }: let
     inherit (nixpkgs) lib;
     mkHost = name: lib.nixosSystem {
       specialArgs = { inherit inputs; };

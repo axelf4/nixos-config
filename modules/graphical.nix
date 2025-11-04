@@ -1,7 +1,12 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 let
   cfg = config.graphical;
+  quickshell = inputs.quickshell.packages.x86_64-linux.quickshell.override {
+    withX11 = false;
+    withHyprland = false;
+    withI3 = false;
+  };
 
   editorDesktopItem = pkgs.makeDesktopItem {
     name = "editor";
@@ -54,11 +59,8 @@ let
     desktopName = "Quickshell";
     noDisplay = true;
     icon = "org.quickshell";
-    exec = lib.getExe pkgs.quickshell;
+    exec = lib.getExe quickshell;
   };
-  polkit-kde-agent-1' = pkgs.runCommandLocal "polkit-kde-agent-1-wrapped" {} ''
-    install -Dm644 {${pkgs.kdePackages.polkit-kde-agent-1}/share,$out/lib}/systemd/user/plasma-polkit-agent.service
-  '';
   backlightctl = pkgs.callPackage ../packages/backlightctl {};
   pw-target = pkgs.callPackage ../packages/pw-target {};
 in {
@@ -150,10 +152,6 @@ in {
     # Delay until XDG_CURRENT_DESKTOP is imported into systemd user environment
     systemd.user.services.xdg-desktop-portal.after = [ "niri.service" ];
 
-    systemd.packages = [ polkit-kde-agent-1' ];
-    systemd.user.services.plasma-polkit-agent =
-      { after = [ "graphical-session.target" ]; wantedBy = [ "niri.service" ]; };
-
     services.logind.settings.Login = { IdleAction = "sleep"; IdleActionSec = 300; };
     systemd.user.services.swayidle = {
       description = "Idle manager";
@@ -165,8 +163,8 @@ in {
       serviceConfig = {
         ExecStart = ''
           ${lib.getExe pkgs.swayidle} -w idlehint 300 \
-            lock "${lib.getExe pkgs.quickshell} ipc call lockscreen lock" \
-            unlock "${lib.getExe pkgs.quickshell} ipc call lockscreen unlock" \
+            lock "${lib.getExe quickshell} ipc call lockscreen lock" \
+            unlock "${lib.getExe quickshell} ipc call lockscreen unlock" \
             before-sleep "loginctl lock-session" \
             timeout 300 "${lib.getExe pkgs.niri} msg action power-off-monitors"
         '';
