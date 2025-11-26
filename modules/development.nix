@@ -9,9 +9,7 @@ in {
   config = lib.mkIf cfg.enable {
     programs.msmtp.enable = true;
     environment.systemPackages = with pkgs; [
-      config.boot.kernelPackages.perf
-
-      gdb rr
+      gdb rr perf
       clang-tools # Provides the clangd language server
       rustfmt rust-analyzer
       nodePackages.prettier typescript-language-server
