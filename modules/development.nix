@@ -15,7 +15,7 @@ in {
       nodePackages.prettier typescript-language-server
       black pyright
       shellcheck
-      nixfmt-rfc-style nixd
+      nixfmt nixd
       kdePackages.qtdeclarative # Provides qmlformat and qmlls
       hunspell
       gfm-preview
