@@ -97,6 +97,7 @@ in {
       # (callPackage ../packages/edit-selection {})
 
       foot spotify inkscape
+      melonDS
     ];
     environment.variables = {
       MOZ_USE_XINPUT2 = "1";
