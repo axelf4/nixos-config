@@ -9,6 +9,7 @@ in {
   ];
 
   boot.loader.systemd-boot.editor = false;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   hardware.bluetooth.enable = true;
   location.provider = "geoclue2";
   networking.useNetworkd = true;
