@@ -15,7 +15,6 @@
           # Extend nixpkgs with packages from this flake
           nixpkgs.config.packageOverrides = pkgs: self.packages.${pkgs.stdenv.system} or {};
         }
-        ./configuration.nix
         modules/hosts/${name}
       ];
     };
@@ -24,6 +23,7 @@
     nixosConfigurations = lib.genAttrs hosts mkHost;
 
     nixosModules = {
+      default = ./configuration.nix;
       spotify-inhibit-sleepd = modules/spotify-inhibit-sleepd;
     };
 
