@@ -15,37 +15,37 @@ let
     mimeTypes = [ "text/plain" ];
   };
 
+  inherit (config.services.displayManager) defaultSession sessionPackages;
+  sessionPackage = lib.findFirst
+    (pkg: builtins.elem defaultSession pkg.providedSessions)
+    (throw "session not found") sessionPackages;
   startde = pkgs.runCommandLocal "startde" {} ''
-    shopt -s lastpipe
-    find -L ${config.services.displayManager.sessionData.desktops}/share/{xsessions,wayland-sessions} \
-      -type f -name '*.desktop' -printf '%H\0%P\0' |
-      while IFS= read -rd ''' dir && IFS= read -rd ''' file; do
-      desktopFileId=''${file//'/'/-}
-      [[ $desktopFileId == ${config.services.displayManager.defaultSession}.desktop ]] || continue
-      while IFS= read -r line; do # Parse desktop file
+    parse_desktop_file() {
+      while IFS= read -r line; do
         case $line in
           \#* | '[Desktop Entry]') continue ;;
           \[*\]) break ;; # Desktop Entry group header must come first
         esac
-        if [[ $line =~ ^([A-Za-z0-9-]+)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
-          value=''${BASH_REMATCH[2]//'\\'/\\}
-          case ''${BASH_REMATCH[1]} in
-            Name) name=$value ;;
-            Exec) [[ $value =~ ^[\`$]|[^\\][\`$] ]] && { >&2 echo Invalid Exec; exit 1; }
-              declare -ar exec=($value) ;; # TODO Prepend startx if Type=XSession
-          esac
-        fi
-      done <"$dir/$file"
-      cat <<EOF >$out
+        [[ $line =~ ^([A-Za-z0-9-]+)[[:space:]]*=[[:space:]]*(.*)$ ]] || continue
+        value=''${BASH_REMATCH[2]//'\\'/\\}
+        case ''${BASH_REMATCH[1]} in
+          Name) name=$value ;;
+          Exec) [[ $value =~ ^[\`$]|[^\\][\`$] ]] && { >&2 echo invalid Exec; return 1; }
+            declare -agr exec=($value) ;;
+        esac
+      done <"$1"
+    }
+    for f in ${sessionPackage}/share/{wayland-sessions,xsessions}/${defaultSession}.desktop; do
+      [[ -e $f ]] && { parse_desktop_file "$f" || exit; break; }
+    done
+    [[ $name ]] || { >&2 echo 'desktop entry not found'; exit 1; }
+    cat <<EOF >$out
     #!/bin/sh
-    echo 'Starting $name...'
+    echo Starting ''${name@Q}...
     unset XDG_VTNR
     exec ''${exec[@]@Q}
     EOF
-      chmod +x $out
-      exit
-    done
-    >&2 echo 'Desktop entry not found'; exit 1
+    chmod +x $out
   '';
 
   quickshellDesktopItem = pkgs.makeDesktopItem {
@@ -96,7 +96,6 @@ in {
         DisableFirefoxStudies = true;
         DisablePocket = true;
         Preferences = {
-          "widget.use-xdg-desktop-portal.file-picker".Value = 1;
           "browser.compactmode.show".Value = true;
           "browser.quitShortcut.disabled".Value = true; # Disable CTRL-Q
           "browser.urlbar.suggest.calculator".Value = true;
@@ -115,7 +114,7 @@ in {
       quickshell quickshellDesktopItem
 
       foot nautilus spotify inkscape
-      melonDS
+      melonds
     ];
     environment.variables = {
       NIXOS_OZONE_WL = "1"; # Wayland Ozone platform for Electron

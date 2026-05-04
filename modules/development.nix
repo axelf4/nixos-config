@@ -12,10 +12,10 @@ in {
       gdb rr perf
       clang-tools # Provides the clangd language server
       rustfmt rust-analyzer
-      nodePackages.prettier typescript-language-server
+      prettier typescript-language-server
       black pyright
       shellcheck
-      nixfmt-rfc-style nixd
+      nixfmt nixd
       kdePackages.qtdeclarative # Provides qmlformat and qmlls
       hunspell
       gfm-preview
